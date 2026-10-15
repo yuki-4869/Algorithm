@@ -1,0 +1,265 @@
+struct TreeDiameter{
+    ll n = 0;
+    ll diameter = 0;
+    ll s = -1, t = -1;
+    ll radius = 0;
+
+    vl path;
+    vl dist_s, dist_t;
+    vl ecc;
+    vl farthest;
+    vl centers;
+    vl diameter_pos;
+
+private:
+    tuple<ll,vl,vl> dist_from(const graph& g, ll start){
+        vl dist(n, -1);
+        vl par(n, -1);
+        queue<ll> q;
+
+        dist[start] = 0;
+        q.push(start);
+
+        while(!q.empty()){
+            ll v = q.front();
+            q.pop();
+
+            for(auto nv : g[v]){
+                if(dist[nv] != -1) continue;
+                dist[nv] = dist[v] + 1;
+                par[nv] = v;
+                q.push(nv);
+            }
+        }
+
+        ll far = start;
+
+        rep(v,n){
+            if(dist[v] > dist[far]) far = v;
+        }
+
+        return {far, dist, par};
+    }
+
+public:
+    TreeDiameter(){}
+
+    TreeDiameter(const graph& g){
+        build(g);
+    }
+
+    void build(const graph& g){
+        n = g.size();
+        assert(n >= 1);
+
+        auto [a, d0, p0] = dist_from(g, 0);
+        auto [b, da, par] = dist_from(g, a);
+        auto [dummy, db, p1] = dist_from(g, b);
+
+        s = a;
+        t = b;
+
+        dist_s = move(da);
+        dist_t = move(db);
+
+        diameter = dist_s[t];
+
+        path.clear();
+
+        for(ll v = t; v != -1; v = par[v]){
+            path.pb(v);
+        }
+
+        reverse(all(path));
+
+        diameter_pos.assign(n, -1);
+
+        rep(i,(ll)path.size()){
+            diameter_pos[path[i]] = i;
+        }
+
+        ecc.resize(n);
+        farthest.resize(n);
+
+        rep(v,n){
+            if(dist_s[v] >= dist_t[v]){
+                ecc[v] = dist_s[v];
+                farthest[v] = s;
+            }
+            else{
+                ecc[v] = dist_t[v];
+                farthest[v] = t;
+            }
+        }
+
+        radius = *min_element(all(ecc));
+
+        centers.clear();
+
+        rep(v,n){
+            if(ecc[v] == radius){
+                centers.pb(v);
+            }
+        }
+    }
+
+    ll get_farthest_dist(ll v) const{
+        return ecc[v];
+    }
+
+    ll get_farthest_vertex(ll v) const{
+        return farthest[v];
+    }
+
+    bool on_diameter(ll v) const{
+        return diameter_pos[v] != -1;
+    }
+};
+
+
+struct WeightedTreeDiameter{
+    ll n = 0;
+    ll diameter = 0;
+    ll s = -1, t = -1;
+    ll radius = 0;
+
+    vl path;
+    vl dist_s, dist_t;
+    vl ecc;
+    vl farthest;
+    vl centers;
+    vl diameter_pos;
+
+private:
+    tuple<ll,vl,vl> dist_from(const Graph& g, ll start){
+        vl dist(n, -1);
+        vl par(n, -1);
+        stack<ll> st;
+
+        dist[start] = 0;
+        st.push(start);
+
+        while(!st.empty()){
+            ll v = st.top();
+            st.pop();
+
+            for(auto [nv,w] : g[v]){
+                if(dist[nv] != -1) continue;
+                dist[nv] = dist[v] + w;
+                par[nv] = v;
+                st.push(nv);
+            }
+        }
+
+        ll far = start;
+
+        rep(v,n){
+            if(dist[v] > dist[far]) far = v;
+        }
+
+        return {far, dist, par};
+    }
+
+public:
+    WeightedTreeDiameter(){}
+
+    WeightedTreeDiameter(const Graph& g){
+        build(g);
+    }
+
+    void build(const Graph& g){
+        n = g.size();
+        assert(n >= 1);
+
+        auto [a, d0, p0] = dist_from(g, 0);
+        auto [b, da, par] = dist_from(g, a);
+        auto [dummy, db, p1] = dist_from(g, b);
+
+        s = a;
+        t = b;
+
+        dist_s = move(da);
+        dist_t = move(db);
+
+        diameter = dist_s[t];
+
+        path.clear();
+
+        for(ll v = t; v != -1; v = par[v]){
+            path.pb(v);
+        }
+
+        reverse(all(path));
+
+        diameter_pos.assign(n, -1);
+
+        rep(i,(ll)path.size()){
+            diameter_pos[path[i]] = i;
+        }
+
+        ecc.resize(n);
+        farthest.resize(n);
+
+        rep(v,n){
+            if(dist_s[v] >= dist_t[v]){
+                ecc[v] = dist_s[v];
+                farthest[v] = s;
+            }
+            else{
+                ecc[v] = dist_t[v];
+                farthest[v] = t;
+            }
+        }
+
+        radius = *min_element(all(ecc));
+
+        centers.clear();
+
+        rep(v,n){
+            if(ecc[v] == radius){
+                centers.pb(v);
+            }
+        }
+    }
+
+    ll get_farthest_dist(ll v) const{
+        return ecc[v];
+    }
+
+    ll get_farthest_vertex(ll v) const{
+        return farthest[v];
+    }
+
+    bool on_diameter(ll v) const{
+        return diameter_pos[v] != -1;
+    }
+};
+
+/*
+TreeDiameter td(g);           // graph = vector<vector<ll>>
+WeightedTreeDiameter wtd(g);  // Graph = vector<vector<pair<ll,ll>>>
+
+td.diameter;                  // 直径
+td.s, td.t;                   // 直径の両端
+td.path;                      // s -> t の直径上の頂点列
+td.dist_s[v];                 // s から v までの距離
+td.dist_t[v];                 // t から v までの距離
+td.ecc[v];                    // v から最遠点までの距離
+td.farthest[v];               // v から最遠な頂点の1つ
+td.radius;                    // 頂点を中心とした木の半径
+td.centers;                   // 中心となる頂点
+td.diameter_pos[v];           // 直径上での位置、直径外なら -1
+td.on_diameter(v);            // v が今回求めた直径上なら true
+td.get_farthest_dist(v);      // v から最遠点までの距離
+td.get_farthest_vertex(v);    // v から最遠な頂点の1つ
+
+td.build(g);                  // 再構築 O(N)
+wtd.build(g);                 // 再構築 O(N)
+
+計算量 : O(N)
+メモリ : O(N)
+
+重み付き版の Graph の pair は {行き先, 辺重み}
+重み付き版の辺重みは非負
+*/
+

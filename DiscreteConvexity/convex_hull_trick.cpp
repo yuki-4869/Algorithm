@@ -1,0 +1,143 @@
+//ConvexHullTrick
+
+template<class T = long long, bool MINIMIZE = true>
+struct ConvexHullTrick {
+    static_assert(is_integral_v<T> && sizeof(T) <= 8);
+
+    using i128 = __int128_t;
+
+    struct Line {
+        T a, b;
+
+        Line(T a = 0, T b = 0) : a(a), b(b) {}
+
+        i128 get(T x) const {
+            return (i128)a * x + b;
+        }
+    };
+
+    vector<Line> lines;
+
+    ConvexHullTrick() {}
+
+    Line normalize(T a, T b) const {
+        if constexpr (MINIMIZE) {
+            return Line(a, b);
+        } else {
+            return Line(-a, -b);
+        }
+    }
+
+    bool unnecessary(
+        const Line& x,
+        const Line& y,
+        const Line& z
+    ) const {
+        i128 left =
+            ((i128)y.b - x.b) *
+            ((i128)y.a - z.a);
+
+        i128 right =
+            ((i128)z.b - y.b) *
+            ((i128)x.a - y.a);
+
+        return left >= right;
+    }
+
+    void add_line(T a, T b) {
+        Line line = normalize(a, b);
+
+        if (!lines.empty()) {
+            assert(lines.back().a >= line.a);
+        }
+
+        if (!lines.empty() && lines.back().a == line.a) {
+            if (lines.back().b <= line.b) {
+                return;
+            }
+
+            lines.pop_back();
+        }
+
+        while (
+            lines.size() >= 2 &&
+            unnecessary(
+                lines[lines.size() - 2],
+                lines[lines.size() - 1],
+                line
+            )
+        ) {
+            lines.pop_back();
+        }
+
+        lines.push_back(line);
+    }
+
+    T query(T x) const {
+        assert(!lines.empty());
+
+        int left = 0;
+        int right = (int)lines.size() - 1;
+
+        while (left < right) {
+            int mid = (left + right) / 2;
+
+            if (lines[mid].get(x) <= lines[mid + 1].get(x)) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        i128 result = lines[left].get(x);
+
+        if constexpr (!MINIMIZE) {
+            result = -result;
+        }
+
+        return (T)result;
+    }
+
+    int size() const {
+        return lines.size();
+    }
+
+    bool empty() const {
+        return lines.empty();
+    }
+
+    void clear() {
+        lines.clear();
+    }
+};
+
+/*
+整数係数・整数 x 用
+
+ConvexHullTrick<ll> cht;                       // 最小値を管理
+ConvexHullTrick<ll,false> cht;                 // 最大値を管理
+
+cht.add_line(a,b);                             // y=ax+b を追加 償却 O(1)
+cht.query(x);                                  // x における最小値/最大値 O(log N)
+
+cht.size();                                    // 現在保持している有効な直線数 O(1)
+cht.empty();                                   // 直線が0本なら true O(1)
+cht.clear();                                   // 全直線を削除 O(N)
+
+最小値版:
+    傾き a を単調減少で追加する必要がある
+    a1 >= a2 >= a3 >= ...
+
+最大値版:
+    傾き a を単調増加で追加する必要がある
+    a1 <= a2 <= a3 <= ...
+
+query(x) の x は好きな順番でよい
+
+同じ傾きの直線を追加した場合、
+最小値版では切片が小さい方、
+最大値版では切片が大きい方だけを残す
+
+※ a*x+b の最終結果が T の範囲内に収まる必要がある
+※ 内部の比較には __int128 を使用
+*/
