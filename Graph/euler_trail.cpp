@@ -42,14 +42,17 @@ vector<ll> EulerTrail(ll n,vector<pair<ll,ll>> e,bool directed=false){
 }
 
 /*
-vl EulerTrail(n,e,directed=false) オイラー路の頂点列を返す、存在しなければ{} O(N+M)
+細かい注意点
+0-indexed、N>=1。辺はvector<pair<ll,ll>>。多重辺・自己ループにも対応。
+全辺をちょうど1回通る頂点列を返す。存在しない場合は空配列。
+有向/無向のオイラー閉路も同じ関数で得られる。
 
-auto ans=EulerTrail(n,edges); 無向グラフ
-auto ans=EulerTrail(n,edges,true); 有向グラフ
+使える関数一覧
+EulerTrail(N,edges);       // vector<ll>: 無向オイラー路 O(N+M)
+EulerTrail(N,edges,true);  // vector<ll>: 有向オイラー路 O(N+M)
 
-e=vector<pair<ll,ll>> で辺{u,v}を渡す
-全ての辺をちょうど1回通る頂点列を返す
-オイラー閉路の場合も同じ関数で取得可能
-辺が全て使えない場合は{}を返す
-多重辺に対応
+基本の関数
+vector<pair<ll,ll>> edges={{0,1},{1,2},{2,0}};
+auto path = EulerTrail(3,edges);              // 無向オイラー路
+auto directed_path = EulerTrail(3,edges,true);// 有向オイラー路
 */

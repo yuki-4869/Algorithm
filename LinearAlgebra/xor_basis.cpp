@@ -1,4 +1,3 @@
-//XOR基底
 template<class T = unsigned long long>
 struct XorBasis {
     static_assert(is_integral_v<T>);
@@ -97,9 +96,13 @@ struct XorBasis {
 };
 
 /*
-非負整数用
-挿入された整数の部分集合 XOR が作る線形空間を管理
+細かい注意点
+非負整数の部分集合XORが作る線形空間。Tは符号なし整数型。
+0は常に作れる。同じ値を複数回insertしてもrankは増えない。
+異なるXOR値は2^rank個。unsigned long longなら基底は最大64本。
+log MAXはTのビット数に相当する。
 
+使える関数一覧
 XorBasis<unsigned long long> xb;               // 空の XOR Basis を作成
 
 xb.insert(x);                                  // x を追加
@@ -129,7 +132,9 @@ xb.vectors();                                  // 現在の基底ベクトルを
 
 xb.clear();                                    // 空に戻す O(log MAX)
 
-※ 0 は常に作れる
-※ 同じ値を何度 insert してもランクは増えない
-※ unsigned long long なら最大 64 本の基底だけ保持する
+基本の関数
+XorBasis<unsigned long long> basis;
+basis.insert(3); basis.insert(5);
+auto possible = basis.contains(6);           // true
+auto maximum = basis.max_xor();              // 6
 */

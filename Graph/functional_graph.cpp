@@ -1,6 +1,3 @@
-//FunctionalGraph
-
-// Functional Graph
 struct FunctionalGraph{
   ll n;
   vl to, indeg, cycle_id, cycle_pos, cycle_len, dist, root_cycle, root_pos;
@@ -72,68 +69,53 @@ struct FunctionalGraph{
     }
   }
 
-  // v がサイクル上にあるか
   bool is_cycle(ll v){
     return on_cycle[v];
   }
 
-  // v が最終的に入るサイクルのID
   ll get_cycle_id(ll v){
     return cycle_id[v];
   }
 
-  // v からサイクルまでの距離
   ll get_dist(ll v){
     return dist[v];
   }
 
-  // v から進んで最初に到達するサイクル頂点
   ll get_root(ll v){
     return root_cycle[v];
   }
 
-  // v が入るサイクルの長さ
   ll get_cycle_len(ll v){
     return cycle_len[cycle_id[v]];
   }
 
-  // サイクルに入った位置
   ll get_cycle_pos(ll v){
     return root_pos[v];
   }
 };
+
 /*
-Functional Graph
-0-indexed
-各頂点から出る辺がちょうど1本
+細かい注意点
+0-indexed。各頂点から出る辺はちょうど1本。入力はvector<ll>、各to[v]は0..N-1。
+サイクルとそこへの流入木をO(N)で分解する。移動回数を指定するjump機能は含まない。
+get_cycle_pos(v)は最初に到達するサイクル頂点の、サイクル内位置を返す。
 
-vector<int> to(n);                             // v -> to[v]
-FunctionalGraph fg(to);                        // 構築 O(N log 2^64)
+使える関数一覧
+FunctionalGraph fg(to); // 構築 O(N)
+fg.build(to);          // void: 再構築 O(N)
+fg.is_cycle(v);        // bool: サイクル上か O(1)
+fg.get_cycle_id(v);    // ll: 最終到達サイクルの番号 O(1)
+fg.get_dist(v);        // ll: サイクルまでの距離 O(1)
+fg.get_root(v);        // ll: 最初に到達するサイクル頂点 O(1)
+fg.get_cycle_len(v);   // ll: 最終到達サイクルの長さ O(1)
+fg.get_cycle_pos(v);   // ll: 流入先のサイクル内位置 O(1)
+fg.to, fg.rev;         // 移動先と逆向き隣接リスト
+fg.cycle_id, fg.cycle_pos, fg.cycle_len, fg.dist, fg.root_cycle, fg.root_pos, fg.on_cycle; // 分解結果
 
-fg.jump(v,k);                                  // vからk回進んだ頂点 O(log k)
-
-fg.in_cycle(v);                                // vがサイクル上ならtrue
-fg.cycle_id(v);                                // 最終的に入るサイクル番号
-fg.cycle_size(v);                              // 最終的に入るサイクルの長さ
-fg.dist_to_cycle(v);                           // サイクルまでの距離
-fg.cycle_entry(v);                             // 最初に到達するサイクル頂点
-
-fg.distance(a,b);                              // aからbへの最小移動回数
-                                                // 到達不能なら-1
-fg.reachable(a,b);                             // aからbへ到達可能か
-
-fg.cycle[id];                                  // id番目のサイクル頂点列
-                                                // toの向き順
-
-例:
-vector<int> to={1,2,3,4,5,2,1};
-FunctionalGraph fg(to);
-
-fg.jump(0,3);                                  // 3
-fg.dist_to_cycle(0);                           // 2
-fg.cycle_entry(0);                             // 2
-fg.in_cycle(2);                                // true
-fg.cycle_size(0);                              // 4
-fg.distance(0,4);                              // 4
-fg.reachable(6,3);                             // true
+基本の関数
+FunctionalGraph fg(vl{1,2,3,2});
+auto distance = fg.get_dist(0);               // サイクルまで2辺
+auto entry = fg.get_root(0);                  // 最初のサイクル頂点2
+auto length = fg.get_cycle_len(0);            // サイクル長2
+auto on_cycle = fg.is_cycle(2);               // true
 */

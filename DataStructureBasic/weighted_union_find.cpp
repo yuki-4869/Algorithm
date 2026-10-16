@@ -1,5 +1,3 @@
-//重み付きUnionFind
-
 template<class T = long long>
 struct WeightedUnionFind {
     int n;
@@ -12,7 +10,7 @@ struct WeightedUnionFind {
         : n(n), parent_or_size(n, -1), diff_weight(n, T{}) {}
 
     int leader(int a) {
-        assert(0 <= a && a < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
 
         if (parent_or_size[a] < 0) return a;
 
@@ -25,7 +23,7 @@ struct WeightedUnionFind {
     }
 
     T weight(int a) {
-        assert(0 <= a && a < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
 
         leader(a);
 
@@ -33,8 +31,8 @@ struct WeightedUnionFind {
     }
 
     int merge(int a, int b, T w) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         w += weight(a);
         w -= weight(b);
@@ -57,29 +55,29 @@ struct WeightedUnionFind {
     }
 
     bool same(int a, int b) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         return leader(a) == leader(b);
     }
 
     int size(int a) {
-        assert(0 <= a && a < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
 
         return -parent_or_size[leader(a)];
     }
 
     T diff(int a, int b) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
-        assert(same(a, b));
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
+        do { if (!(same(a, b))) std::abort(); } while (false);
 
         return weight(b) - weight(a);
     }
 
     bool consistent(int a, int b, T w) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         if (!same(a, b)) return true;
 
@@ -120,6 +118,12 @@ struct WeightedUnionFind {
 };
 
 /*
+細かい注意点
+0-indexed。merge(a,b,w)の制約はpotential[b]-potential[a]=w。
+diff(a,b)は同じ連結成分でのみ使用する。重みの型Tで加減算ができ、結果が収まること。
+既に連結な頂点の新制約はconsistentで矛盾を確認する。
+
+使える関数一覧
 WeightedUnionFind<ll> uf(N);                     // N 頂点で初期化 O(N)
 
 uf.merge(a,b,w);                                // potential[b]-potential[a]=w として併合 償却 O(alpha(N))
@@ -131,6 +135,11 @@ uf.groups();                                    // 全連結成分を列挙 O(N 
 uf.weight(a);                                   // potential[a]-potential[leader(a)] 償却 O(alpha(N))
 uf.diff(a,b);                                   // potential[b]-potential[a]、same(a,b) が必要 償却 O(alpha(N))
 uf.consistent(a,b,w);                           // potential[b]-potential[a]=w と矛盾しないか判定 償却 O(alpha(N))
-*/
 
-// snippet direct test
+基本の関数
+WeightedUnionFind<ll> uf(3);
+uf.merge(0,1,5);
+uf.merge(1,2,-2);
+auto connected = uf.same(0,2);                // true
+auto difference = uf.diff(0,2);               // 3
+*/

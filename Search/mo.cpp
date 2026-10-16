@@ -1,4 +1,3 @@
-//Mo's Algorithm
 struct Mo {
     int n;
 
@@ -12,7 +11,7 @@ struct Mo {
         : n(n) {}
 
     int add_query(int l, int r) {
-        assert(0 <= l && l <= r && r <= n);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
 
         int id = left.size();
 
@@ -120,49 +119,25 @@ struct Mo {
 };
 
 /*
-0-indexed
-クエリ区間は半開区間 [l,r)
+細かい注意点
+0-indexed、全区間は半開区間[l,r)。0<=l<=r<=N。
+全クエリをadd_queryしてからrun。処理順は内部で並べ替え、output(id)のIDは登録順。
+add/removeの引数は値ではなく配列添字。現在のデータ構造は空区間から始める。
+左右別の処理順はadd_left(--L),add_right(R++),remove_left(L++),remove_right(--R)。
+各追加削除O(1)なら移動量は典型的にO(N sqrt(Q))、別途クエリのソートO(Q log Q)。
 
-Mo mo(N);                                      // 配列長 N で初期化
+使える関数一覧
+Mo mo(N);                                       // 配列長を指定して初期化
+mo.add_query(l,r);                               // int: クエリを登録しIDを返す
+mo.build();                                     // void: 処理順を構築 O(Q log Q)
+mo.run(add,remove,output);                       // void: 左右共通の処理で回答
+mo.run(add_left,add_right,remove_left,remove_right,output); // void: 左右別の処理で回答
 
-int id = mo.add_query(l,r);                    // クエリ [l,r) を追加し、クエリ番号を返す O(1)
-
-mo.run(
-    add,
-    remove,
-    output
-);                                              // 左右で処理が同じ場合
-
-add(i);                                        // 要素 i を現在区間に追加
-remove(i);                                     // 要素 i を現在区間から削除
-output(id);                                    // クエリ id の答えを保存
-
-
-左右で操作が異なる場合:
-
-mo.run(
-    add_left,
-    add_right,
-    remove_left,
-    remove_right,
-    output
-);
-
-add_left(i);                                   // 左側に i を追加
-add_right(i);                                  // 右側に i を追加
-remove_left(i);                                // 左側から i を削除
-remove_right(i);                               // 右側から i を削除
-
-
-現在区間は常に [L,R)
-
-add_left(--L);
-add_right(R++);
-remove_left(L++);
-remove_right(--R);
-
-※ クエリを全て add_query() した後に run() する
-※ クエリの順番は内部で並べ替えられる
-※ output(id) の id は元のクエリ番号
-※ add/remove が O(1) なら典型的には O((N+Q)sqrt(N)) 程度
+基本の関数
+vl A={1,2,3}; Mo mo(3);
+mo.add_query(0,2); mo.add_query(1,3);
+ll sum=0; vl answers(2);
+mo.run([&](int i){sum+=A[i];},
+       [&](int i){sum-=A[i];},
+       [&](int id){answers[id]=sum;});       // {3,5}
 */

@@ -1,34 +1,19 @@
-// 非負整数列の区間mod / floor除算 / 整数平方根 / bit AND・OR。
-// Source: https://github.com/yuki-4869/Algorithm/blob/main/DataStructureSegment/segment_tree_beats_extra.cpp
-#include <algorithm>
-#include <cmath>
-#include <cstddef>
-#include <limits>
-#include <stdexcept>
-#include <utility>
-#include <vector>
-
 namespace beats_extra_detail {
     inline int check_size(std::size_t n){
         if(n>static_cast<std::size_t>(std::numeric_limits<int>::max()/4))
-            throw std::length_error("BeatsExtra: too many elements");
+            std::abort();
         return static_cast<int>(n);
     }
     inline std::vector<long long> zeros(int n){
-        if(n<0)throw std::invalid_argument("BeatsExtra: negative size");
+        if(n<0)std::abort();
         check_size(static_cast<std::size_t>(n));
         return std::vector<long long>(static_cast<std::size_t>(n),0);
     }
-    inline void point(int n,int i){if(i<0||i>=n)throw std::out_of_range("BeatsExtra: index out of range");}
-    inline void range(int n,int l,int r){if(l<0||l>r||r>n)throw std::out_of_range("BeatsExtra: invalid half-open range");}
-    inline void nonnegative(long long x){if(x<0)throw std::invalid_argument("BeatsExtra: negative value");}
-    inline void positive(long long x){if(x<=0)throw std::invalid_argument("BeatsExtra: nonpositive divisor");}
+    inline void point(int n,int i){if(i<0||i>=n)std::abort();}
+    inline void range(int n,int l,int r){if(l<0||l>r||r>n)std::abort();}
+    inline void nonnegative(long long x){if(x<0)std::abort();}
+    inline void positive(long long x){if(x<=0)std::abort();}
 }
-
-//Segment Tree Beats! Extra
-
-
-
 
 struct SegMod{
     static constexpr long long INF=std::numeric_limits<long long>::max();
@@ -123,7 +108,6 @@ public:
     long long max(int l,int r){return prod(l,r).mx;}
     long long all_sum()const{return n?st[1].sum:0;}
 };
-
 
 struct SegDiv{
     static constexpr long long INF=std::numeric_limits<long long>::max();
@@ -239,7 +223,6 @@ public:
     long long all_sum()const{return n?st[1].sum:0;}
 };
 
-
 struct SegSqrt{
     static constexpr long long INF=std::numeric_limits<long long>::max();
     struct Node{long long sum=0,mn=INF,mx=-INF;int len=0;long long setv=0;bool has=false;};
@@ -344,7 +327,6 @@ public:
     long long max(int l,int r){return prod(l,r).mx;}
     long long all_sum()const{return n?st[1].sum:0;}
 };
-
 
 struct SegBitwiseBeats{
     using ull=unsigned long long;
@@ -514,8 +496,6 @@ public:
         for(long long x:a)beats_extra_detail::nonnegative(x);
         n=static_cast<int>(a.size());
 
-
-
         st.assign(std::max<std::size_t>(1,4*static_cast<std::size_t>(n)),{});
         if(n)build(1,0,n,a);
     }
@@ -551,13 +531,19 @@ public:
 };
 
 /*
-Segment Tree Beats拡張 公開API一覧（0-indexed / 半開区間[l,r)）
+細かい注意点
+0-indexed、区間は[l,r)。N<=INT_MAX/4。各クラスは独立した木。
+全値・マスクは0以上のlong long、法・除数は正。区間和と中間演算もlong longに収まること。
+Nodeの共通情報は{sum,mn,mx,len}。Bitwise型にはbor/bandもある。
+空区間のprodは{0,LLONG_MAX,-LLONG_MAX,0}、bor=0、band=LLONG_MAX。
+空区間更新は何もしないが、法・除数・値などの前提条件は検査する。
+範囲外、負値、負の長さ、0以下の法/除数などはメッセージなしで停止。
+divide/sqrtは最小値と最大値が同じ結果へ写る節点を一括代入する。
+mod/divide/sqrt/AND/ORは単発最悪O(N)。任意の更新列でO(log N)を保証しない。
+set/assignやAND/ORの交互更新は償却評価の前提を変える。保持メモリO(N)。
+Nodeのsetv/has/lazy_*は内部実装用。
 
-N = 配列長、0<=i<N、0<=l<=r<=N。Type = 下記4種類の木。
-全値・マスクは0以上のlong long。各区間和と中間演算もlong longに収まること。
-Nodeの共通の取得情報は{sum,mn,mx,len}。Bitwise型はbor/band（区間OR/AND）も持つ。
-各クラスは独立した木であり、同じvから作っても更新は共有しない。
-
+使える関数一覧
 // 型の選択
 SegMod seg(v);                                 // 非負列の区間mod + 和・最小・最大 O(N)
 SegDiv seg(v);                                 // 非負列のfloor除算・代入 + 和・最小・最大 O(N)
@@ -595,15 +581,10 @@ seg.bit_and(l,r,x);                            // SegBitwiseBeats: A[i]&=x。単
 seg.bit_or(l,r,x);                             // SegBitwiseBeats: A[i]|=x。単発最悪O(N)、共通ビットの変化は一括適用
 // divide/sqrtは最小値・最大値が同じ結果へ写る節点を一括代入する。
 
-// 空区間・例外・利用上の注意
-// prod(l,l)は{sum=0,mn=LLONG_MAX,mx=-LLONG_MAX,len=0}。sumは0、min/maxは上記の値を返す。
-// Bitwise型の空区間のborは0、bandはALL=LLONG_MAX（下位63bitが1）。
-// 空区間への更新は何もしない。法・除数・値などの妥当性は空区間でも検査する。
-// 範囲外はout_of_range、負値・負の長さ・0以下の法/除数はinvalid_argument（NDEBUGでも検出）。
-// mod/divide/sqrtの値の減少や、AND/ORでビットが揃うことを利用して走査を省く。
-// 単発O(log N)を保証しない。set/assignやAND/ORの交互更新は償却評価の前提も変える。
-// Nodeのsetv/has/lazy_*は内部の遅延管理用で、取得結果の意味としては利用しない。
-// n/stは非公開。長さはsize()、情報の取得はprod()/get()を使う。
-// N<=INT_MAX/4。より大きな長さはlength_error。通常のメモリはO(N)、デストラクタの解放はO(N)。
-// 各区間和のオーバーフローは一律検出しない。とくに大きい値のOR・区間代入では和の上限に注意。
+基本の関数
+SegDiv seg(vector<ll>{8,9,10});
+seg.divide(0,3,3);                            // {2,3,3}
+auto result = seg.prod(0,3);                  // {sum=8,mn=2,mx=3,len=3}
+seg.assign(1,3,5);                            // {2,5,5}
+auto sum = seg.sum(0,3);                      // 12
 */

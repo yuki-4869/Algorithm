@@ -1,5 +1,3 @@
-//SegTree
-
 template<class S,S(*op)(S,S),S(*e)()>
 struct SegBase:segtree<S,op,e>{
     using Base=segtree<S,op,e>;
@@ -112,9 +110,16 @@ struct SegBracket:SegBase<SegBracket_impl::S,SegBracket_impl::op,SegBracket_impl
     bool valid(int l,int r){auto x=Base::prod(l,r);return x.sum==0&&x.mn>=0;}
 };
 
-
-
 /*
+細かい注意点
+0-indexed、全区間は[l,r)。opは結合則、eは単位元を満たす。
+max_right/min_leftの述語は副作用なし・単調・f(e())==true。
+Arg型の同値は最左位置。MaxSubarrayは空部分列を認めない。
+SegMinMax::S={mx,mn}、Arg::S={val,id}、MaxSubarray::S={sum,pref,suff,best}。
+SegAffine::S={a,b}はf[r-1]∘...∘f[l]、SegBracket::S={sum,mn}。
+整数演算がlong longに収まること。codecfではatcoder/segtreeを追加で読み込む。
+
+使える関数一覧
 SegArgMax seg(v) 区間最大値とその最左位置を管理 O(N)
 pair相当 seg.prod(l,r) {最大値,その最左index}を返す O(logN)
 void seg.set(i,x) A[i]=xに更新 O(logN)
@@ -135,13 +140,6 @@ S seg.prod(l,r) [l,r)の{総和,最小prefix和}を返す O(logN)
 bool seg.valid(l,r) [l,r)が正しい括弧列か判定 O(logN)
 void seg.set(i,c) i番目を'('または')'に更新 O(logN)
 
-SegMinMax::S={mx,mn}
-SegArgMax::S / SegArgMin::S={val,id}
-SegMaxSubarray::S={sum,pref,suff,best}
-SegAffine::S={a,b}
-SegBracket::S={sum,mn}
-区間はすべて[l,r)
-
 void seg.set(i,x) i番目をxに更新 O(logN)
 S seg.get(i) i番目の値を返す O(1)
 S seg.prod(l,r) [l,r)の集約値を返す O(logN)
@@ -157,4 +155,10 @@ SegOR seg(v)  区間ORを管理 O(N)
 SegAND seg(v) 区間ANDを管理 O(N)
 SegGCD seg(v) 区間GCDを管理 O(N)
 SegMinMax seg(v) 区間最大値・最小値を同時管理 O(N)
+
+基本の関数
+SegSum seg(vl{1,2,3});                        // 構築 O(N)
+seg.set(1,10);                                // 点代入 O(log N)
+auto sum = seg.prod(0,3);                     // 14 O(log N)
+auto value = seg.get(1);                      // 10 O(1)
 */

@@ -1,5 +1,3 @@
-//Segment Tree Beats
-
 struct SegBeats{
     static constexpr ll INF=(1LL<<60);
 
@@ -235,7 +233,7 @@ public:
     void chmax(int l,int r,ll x){if(l<r)chmax_(1,0,n,l,r,x);}
     void add(int l,int r,ll x){if(l<r)add_(1,0,n,l,r,x);}
     void assign(int l,int r,ll x){if(l<r)assign_(1,0,n,l,r,x);}
-    void clamp(int l,int r,ll lo,ll hi){assert(lo<=hi);chmax(l,r,lo);chmin(l,r,hi);}
+    void clamp(int l,int r,ll lo,ll hi){do { if (!(lo<=hi)) std::abort(); } while (false);chmax(l,r,lo);chmin(l,r,hi);}
     void set(int i,ll x){assign(i,i+1,x);}
 
     Node prod(int l,int r){return l<r?prod_(1,0,n,l,r):Node{};}
@@ -271,6 +269,13 @@ public:
 };
 
 /*
+細かい注意点
+0-indexed、区間は[l,r)。中間演算と区間和はlong longに収まること。
+chmin/chmax/clampは償却評価。他の区間操作や検索はO(log N)。
+prodのNodeはsum,mx1,mx2,mn1,mn2,mxc,mncなどを持つ。
+argmin/argmaxは同値なら最左位置。第2値がなければ±INF。
+
+使える関数一覧
 SegBeats seg(v) chmin/chmax/add/assign + sum/min/maxを管理 O(N)
 void seg.chmin(l,r,x) [l,r)をmin(A[i],x)に更新 償却O(log^2N)
 void seg.chmax(l,r,x) [l,r)をmax(A[i],x)に更新 償却O(log^2N)
@@ -301,6 +306,10 @@ ll seg.all_sum() 全体の和を返す O(1)
 ll seg.all_min() 全体の最小値を返す O(1)
 ll seg.all_max() 全体の最大値を返す O(1)
 
-Node={sum,mx1,mx2,mn1,mn2,mxc,mnc,...}
-区間はすべて[l,r)
+基本の関数
+SegBeats seg(vl{1,5,3});
+seg.chmin(0,3,4);                             // {1,4,3}
+seg.add(0,2,2);                               // {3,6,3}
+auto result = seg.prod(0,3);                  // 全集約情報
+auto sum = seg.sum(0,3);                      // 12
 */

@@ -1,5 +1,3 @@
-
-
 struct SCCResult {
     ll K;
     vl cmp;
@@ -50,7 +48,6 @@ struct SCCResult {
     }
 };
 
-
 SCCResult SCCDecomposition(const graph& g){
     ll n = g.size();
 
@@ -67,9 +64,6 @@ SCCResult SCCDecomposition(const graph& g){
 
     vb used(n,false);
 
-    // 1回目DFS
-    // 帰りがけ順を求める
-    // 再帰によるスタックオーバーフローを避けるため非再帰
     rep(s,n){
         if(used[s]) continue;
 
@@ -96,9 +90,6 @@ SCCResult SCCDecomposition(const graph& g){
         }
     }
 
-
-    // 2回目DFS
-    // 逆グラフ上でSCCを構築
     vl cmp(n,-1);
     vector<vl> groups;
 
@@ -131,14 +122,11 @@ SCCResult SCCDecomposition(const graph& g){
         K++;
     }
 
-
-    // 縮約DAGを構築
     graph dag(K), rdag(K);
 
     vl indeg(K,0);
     vl outdeg(K,0);
 
-    // 同じSCC間の多重辺を除去するために使用
     vl seen(K,-1);
 
     rep(c,K){
@@ -160,8 +148,6 @@ SCCResult SCCDecomposition(const graph& g){
         }
     }
 
-
-    // 各SCCが有向閉路を持つか
     vb cyclic(K,false);
 
     rep(c,K){
@@ -170,7 +156,6 @@ SCCResult SCCDecomposition(const graph& g){
         }
     }
 
-    // 1頂点SCCの場合の自己ループ
     rep(v,n){
         for(auto to : g[v]){
             if(v == to){
@@ -178,7 +163,6 @@ SCCResult SCCDecomposition(const graph& g){
             }
         }
     }
-
 
     return {
         K,
@@ -193,6 +177,13 @@ SCCResult SCCDecomposition(const graph& g){
 }
 
 /*
+細かい注意点
+0-indexed、有向グラフ。入力はgraph=vector<vector<ll>>。
+SCC番号は縮約DAGのトポロジカル順。異なる成分間の辺u->vではcmp[u]<cmp[v]。
+縮約DAGの順方向DPは成分番号の昇順、逆方向は降順に処理できる。
+cmpは頂点から成分番号、groupsは成分番号から頂点一覧。
+
+使える関数一覧
 auto scc = SCCDecomposition(g);  // gをSCC分解 O(N+M)
 
 scc.K;                           // 強連結成分の個数
@@ -214,16 +205,10 @@ scc.cyclic[c];                   // SCC c が閉路を含むか
 scc.in_cycle(v);                 // 頂点vが有向閉路上にあるか
 scc.has_cycle();                 // グラフ全体に有向閉路があるか
 
-重要:
-SCC番号 0,1,...,K-1 は縮約DAGのトポロジカル順。
-
-異なるSCC間に辺 u -> v が存在するなら
-scc.cmp[u] < scc.cmp[v]
-
-したがって縮約DAG上のDPは
-rep(c,scc.K) ...
-で順方向、
-
-for(ll c=scc.K-1;c>=0;c--) ...
-で逆方向に処理できる。
+基本の関数
+graph g={{1},{0,2},{}};
+auto scc = SCCDecomposition(g);
+auto connected = scc.same(0,1);               // true
+auto component = scc.cmp[2];                  // 1
+auto sources = scc.sources();                 // 入次数0のSCC一覧
 */

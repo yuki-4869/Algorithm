@@ -1,4 +1,3 @@
-
 struct CentroidInfo {
     vl centroids,parent,subtree,max_component;
     ll balance=0;
@@ -27,7 +26,7 @@ CentroidInfo centroid_info_impl(const G& g,const vl& w){
     CentroidInfo res;
     if(n==0) return res;
 
-    assert((ll)w.size()==n);
+    do { if (!((ll)w.size()==n)) std::abort(); } while (false);
 
     res.parent.assign(n,-2);
     res.subtree.assign(n,0);
@@ -53,7 +52,7 @@ CentroidInfo centroid_info_impl(const G& g,const vl& w){
         }
     }
 
-    assert((ll)order.size()==n);
+    do { if (!((ll)order.size()==n)) std::abort(); } while (false);
 
     for(ll v:order) res.subtree[v]=w[v];
 
@@ -116,6 +115,13 @@ ll centroid_one(const G& g,const vl& w){
 }
 
 /*
+細かい注意点
+0-indexed、連結な無向木。graphとGraphの両方に対応。
+Graphの辺重みは重心計算には使わない。頂点重み付き版のw[v]は非負。
+空の木ではcentroids={}、one()=-1。頂点重みが全て0の場合は全頂点が重心になり得る。
+ci.parentは根0の親、ci.subtreeは部分木の頂点数/重み。
+
+使える関数一覧
 vl centroid(g) 木gの重心を全て返す、通常1個または2個 O(N)
 ll centroid_one(g) 木gの重心を1つ返す、空なら-1 O(N)
 CentroidInfo centroid_info(g) 重心・親・部分木サイズ・削除後最大成分サイズを全て返す O(N)
@@ -132,8 +138,9 @@ ci.balance 重心を削除したときの最大連結成分サイズ/重みの�
 ci.one() 重心を1つ返す、存在しなければ-1 O(1)
 ci.is_centroid(v) vが重心か判定 O(1)
 
-graph=vector<vector<ll>> と Graph=vector<vector<pair<ll,ll>>> の両方に対応
-Graphの辺重みは通常の重心計算には影響しない
-頂点重み付き版ではw[v]>=0を想定
-空の木にも対応しcentroids={}、one()=-1
+基本の関数
+graph g={{1},{0,2},{1}};
+auto info = centroid_info(g);
+auto vertex = info.one();                    // 1
+auto all = centroid(g);                      // {1}
 */

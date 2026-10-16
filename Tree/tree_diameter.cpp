@@ -50,7 +50,7 @@ public:
 
     void build(const graph& g){
         n = g.size();
-        assert(n >= 1);
+        do { if (!(n >= 1)) std::abort(); } while (false);
 
         auto [a, d0, p0] = dist_from(g, 0);
         auto [b, da, par] = dist_from(g, a);
@@ -116,7 +116,6 @@ public:
     }
 };
 
-
 struct WeightedTreeDiameter{
     ll n = 0;
     ll diameter = 0;
@@ -169,7 +168,7 @@ public:
 
     void build(const Graph& g){
         n = g.size();
-        assert(n >= 1);
+        do { if (!(n >= 1)) std::abort(); } while (false);
 
         auto [a, d0, p0] = dist_from(g, 0);
         auto [b, da, par] = dist_from(g, a);
@@ -236,6 +235,14 @@ public:
 };
 
 /*
+細かい注意点
+0-indexed、非空の連結な無向木。
+無重みはgraph=vector<vector<ll>>、重み付きはGraph=vector<vector<pair<ll,ll>>>。
+重み付き辺は{行き先,重み}、重みは非負、距離はlong longに収まること。
+radius/centersは頂点を中心とする半径/中心。直径経路は同長のうち1つ。
+構築・再構築O(N)、メモリO(N)。各結果フィールドと取得関数はO(1)。
+
+使える関数一覧
 TreeDiameter td(g);           // graph = vector<vector<ll>>
 WeightedTreeDiameter wtd(g);  // Graph = vector<vector<pair<ll,ll>>>
 
@@ -256,10 +263,10 @@ td.get_farthest_vertex(v);    // v から最遠な頂点の1つ
 td.build(g);                  // 再構築 O(N)
 wtd.build(g);                 // 再構築 O(N)
 
-計算量 : O(N)
-メモリ : O(N)
-
-重み付き版の Graph の pair は {行き先, 辺重み}
-重み付き版の辺重みは非負
+基本の関数
+graph g={{1},{0,2},{1}};
+TreeDiameter td(g);
+auto diameter = td.diameter;                 // 2
+auto path = td.path;                         // 直径上の頂点列
+auto distance = td.get_farthest_dist(1);      // 1
 */
-

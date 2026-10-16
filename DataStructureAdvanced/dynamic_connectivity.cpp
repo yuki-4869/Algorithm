@@ -1,4 +1,3 @@
-// 和を取るためのモノイド構造体
 struct Sum {
     long long val;
     Sum() : val(0) {}
@@ -28,9 +27,9 @@ class dynamic_connectivity {
 
             node() {}
             node(int l, int r) : l(l), r(r), sz(l == r ? 1 : 0), exact(l < r), child_exact(l < r) {}
-	    bool is_root() {
-        	return !p;
-    	　　}
+        bool is_root() {
+            return !p;
+          }
         };
 
         vector<unordered_map<int, np>> ptr;
@@ -193,7 +192,7 @@ class dynamic_connectivity {
             np t = get_node(s, s);
             splay(t);
             function<void(np)> dfs = [&](np t) {
-                assert(t);
+                do { if (!(t)) std::abort(); } while (false);
                 if (t->l < t->r && t->exact) {
                     splay(t);
                     t->exact = 0;
@@ -214,7 +213,7 @@ class dynamic_connectivity {
             np t = get_node(s, s);
             splay(t);
             function<bool(np)> dfs = [&](np t) -> bool {
-                assert(t);
+                do { if (!(t)) std::abort(); } while (false);
                 if (t->edge_connected) {
                     splay(t);
                     return f(t->l);
@@ -274,7 +273,7 @@ class dynamic_connectivity {
     int n_vertices;
 
 public:
-    dynamic_connectivity(int n) : n_vertices(n) { 
+    dynamic_connectivity(int n) : n_vertices(n) {
         ett.emplace_back(n);
         edges.emplace_back(n);
         for (int i = 0; i < n; i++) {
@@ -374,14 +373,31 @@ private:
     }
 };
 
-/*--- 使用例 ---
-dynamic_connectivity<Sum> dc(n);
-dc.update(u, x);           // 頂点uの値をxに
-dc.get_val(u);             // 頂点uの値
-dc.link(u, v);             // 辺追加
-dc.cut(u, v);              // 辺削除
-dc.same(u,v)               // 連結判定
-dc.size(u)                 // uの連結成分の頂点数
-dc.get_sum(u);             // uの連結成分の合計
-dc.same(u, v);             // 連結判定
+/*
+細かい注意点
+0-indexed、無向単純グラフ用。同じ辺の重複追加や自己ループは避ける。
+Sumで頂点値と連結成分和を管理する。updateは加算ではなく代入。
+linkのtrueは異なる成分を結んだ場合、cutのtrueは削除後に成分が分離した場合。
+Euler Tour Treeと多段階の再接続探索を用いる。辺更新は償却O(log^2 N)。
+頂点値・集約値はlong longに収まること。ノード所有権を共有するコピーをしない。
+C++20以降を使用する。
+
+使える関数一覧
+dynamic_connectivity<Sum> dc(n); // 頂点値0のn頂点で構築
+dc.link(u,v);                   // bool: 辺追加、森の辺として追加されたか
+dc.cut(u,v);                    // bool: 辺削除で成分が分離したか
+dc.same(u,v);                   // bool: 連結判定
+dc.size(u);                     // int: uの成分の頂点数
+dc.update(u,x);                 // void: 頂点値をxに代入
+dc.get_val(u);                  // ll: 頂点値
+dc.get_sum(u);                  // ll: 成分和
+
+基本の関数
+dynamic_connectivity<Sum> dc(3);
+dc.update(0,5);
+dc.update(1,2);
+dc.link(0,1);
+auto connected = dc.same(0,1);                // true
+auto sum = dc.get_sum(0);                     // 7
+dc.cut(0,1);
 */

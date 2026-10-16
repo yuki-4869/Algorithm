@@ -1,5 +1,3 @@
-//WaveletMatrix
-
 template<class T = long long>
 struct WaveletMatrix {
     int n;
@@ -101,7 +99,7 @@ struct WaveletMatrix {
     }
 
     T access(int k) const {
-        assert(0 <= k && k < n);
+        do { if (!(0 <= k && k < n)) std::abort(); } while (false);
 
         int x = 0;
 
@@ -127,7 +125,7 @@ struct WaveletMatrix {
     }
 
     int count(const T& x, int l, int r) const {
-        assert(0 <= l && l <= r && r <= n);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
 
         int id =
             lower_bound(
@@ -195,7 +193,7 @@ struct WaveletMatrix {
         int r,
         const T& upper
     ) const {
-        assert(0 <= l && l <= r && r <= n);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
 
         int id =
             lower_bound(
@@ -213,7 +211,7 @@ struct WaveletMatrix {
         const T& lower,
         const T& upper
     ) const {
-        assert(0 <= l && l <= r && r <= n);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
 
         return
             range_freq(l, r, upper) -
@@ -225,8 +223,8 @@ struct WaveletMatrix {
         int r,
         int k
     ) const {
-        assert(0 <= l && l <= r && r <= n);
-        assert(0 <= k && k < r - l);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
+        do { if (!(0 <= k && k < r - l)) std::abort(); } while (false);
 
         int x = 0;
 
@@ -260,8 +258,8 @@ struct WaveletMatrix {
         int r,
         int k
     ) const {
-        assert(0 <= l && l <= r && r <= n);
-        assert(0 <= k && k < r - l);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
+        do { if (!(0 <= k && k < r - l)) std::abort(); } while (false);
 
         return kth_smallest(
             l,
@@ -275,7 +273,7 @@ struct WaveletMatrix {
         int r,
         const T& upper
     ) const {
-        assert(0 <= l && l <= r && r <= n);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
 
         int cnt = range_freq(l, r, upper);
 
@@ -295,7 +293,7 @@ struct WaveletMatrix {
         int r,
         const T& lower
     ) const {
-        assert(0 <= l && l <= r && r <= n);
+        do { if (!(0 <= l && l <= r && r <= n)) std::abort(); } while (false);
 
         int cnt = range_freq(l, r, lower);
 
@@ -316,10 +314,12 @@ struct WaveletMatrix {
 };
 
 /*
-0-indexed
-静的配列用
-内部で座標圧縮するため負数・long long も使用可能
+細かい注意点
+静的配列用、0-indexed、区間は[l,r)。構築後の点更新は不可。
+内部で座標圧縮するため、負数・long longも使用できる。
+kth_smallest/kth_largestは0<=k<r-l。prev/nextが存在しなければnullopt。
 
+使える関数一覧
 WaveletMatrix<ll> wm(A);                       // 配列 A から構築 O(N log N)
 
 wm.access(i);                                  // A[i] を取得 O(log N)
@@ -340,7 +340,9 @@ wm.next_value(l,r,lower);                      // A[l,r) で lower 以上の最�
 
 wm.size();                                     // 配列長 O(1)
 
-※ 区間は全て半開区間 [l,r)
-※ kth_smallest / kth_largest の k は 0-indexed
-※ 静的 Wavelet Matrix なので構築後の点更新はできない
+基本の関数
+WaveletMatrix<ll> wm(vl{3,1,4,1,5});
+auto value = wm.kth_smallest(0,5,2);          // 3
+auto count = wm.count(1,0,5);                 // 2
+auto less = wm.range_freq(0,5,3);             // 2
 */

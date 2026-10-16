@@ -306,7 +306,7 @@ struct SortedImplicitTreap {
     }
 
     ll erase_kth(int k) {
-        assert(0 <= k && k < size());
+        do { if (!(0 <= k && k < size())) std::abort(); } while (false);
 
         auto [a,bc] = split_size_node(root, k);
         auto [b,c] = split_size_node(bc, 1);
@@ -325,7 +325,7 @@ struct SortedImplicitTreap {
     }
 
     int erase_index_range(int l, int r) {
-        assert(0 <= l && l <= r && r <= size());
+        do { if (!(0 <= l && l <= r && r <= size())) std::abort(); } while (false);
 
         auto [a,bc] = split_size_node(root, l);
         auto [b,c] = split_size_node(bc, r-l);
@@ -399,7 +399,7 @@ struct SortedImplicitTreap {
     }
 
     ll get(int k) {
-        assert(0 <= k && k < size());
+        do { if (!(0 <= k && k < size())) std::abort(); } while (false);
         return kth_node(root,k);
     }
 
@@ -408,12 +408,12 @@ struct SortedImplicitTreap {
     }
 
     ll front() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return get(0);
     }
 
     ll back() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return get(size()-1);
     }
 
@@ -479,22 +479,22 @@ struct SortedImplicitTreap {
     }
 
     ll min_value() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return get(0);
     }
 
     ll max_value() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return get(size()-1);
     }
 
     ll pop_min() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return erase_kth(0);
     }
 
     ll pop_max() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return erase_kth(size()-1);
     }
 
@@ -539,17 +539,17 @@ struct SortedImplicitTreap {
     }
 
     ll median_lower() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return get((size()-1)/2);
     }
 
     ll median_upper() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
         return get(size()/2);
     }
 
     pair<ll,ll> median_pair() {
-        assert(!empty());
+        do { if (!(!empty())) std::abort(); } while (false);
 
         return {
             median_lower(),
@@ -558,25 +558,25 @@ struct SortedImplicitTreap {
     }
 
     ll prefix_sum(int k) {
-        assert(0 <= k && k <= size());
+        do { if (!(0 <= k && k <= size())) std::abort(); } while (false);
 
         return prefix_sum_node(root,k);
     }
 
     ll range_sum(int l, int r) {
-        assert(0 <= l && l <= r && r <= size());
+        do { if (!(0 <= l && l <= r && r <= size())) std::abort(); } while (false);
 
         return prefix_sum(r) - prefix_sum(l);
     }
 
     ll sum_smallest(int k) {
-        assert(0 <= k && k <= size());
+        do { if (!(0 <= k && k <= size())) std::abort(); } while (false);
 
         return prefix_sum(k);
     }
 
     ll sum_largest(int k) {
-        assert(0 <= k && k <= size());
+        do { if (!(0 <= k && k <= size())) std::abort(); } while (false);
 
         return total_sum() - prefix_sum(size()-k);
     }
@@ -614,7 +614,7 @@ struct SortedImplicitTreap {
     }
 
     pair<SortedImplicitTreap,SortedImplicitTreap> split_at(int k) {
-        assert(0 <= k && k <= size());
+        do { if (!(0 <= k && k <= size())) std::abort(); } while (false);
 
         auto [a,b] = split_size_node(root,k);
 
@@ -664,7 +664,7 @@ struct SortedImplicitTreap {
     }
 
     SortedImplicitTreap extract_range(int l, int r) {
-        assert(0 <= l && l <= r && r <= size());
+        do { if (!(0 <= l && l <= r && r <= size())) std::abort(); } while (false);
 
         auto [a,bc] = split_size_node(root,l);
         auto [b,c] = split_size_node(bc,r-l);
@@ -696,7 +696,7 @@ struct SortedImplicitTreap {
 
     void merge_with(SortedImplicitTreap&& other) {
         if (!empty() && !other.empty()) {
-            assert(max_value() <= other.min_value());
+            do { if (!(max_value() <= other.min_value())) std::abort(); } while (false);
         }
 
         root = merge_node(
@@ -742,6 +742,14 @@ struct SortedImplicitTreap {
 };
 
 /*
+細かい注意点
+重複を許す昇順の多重集合。添字は0-indexed、添字区間は[l,r)、値区間は[L,R]。
+get/erase_kthは0<=k<size()。front/back/pop/medianは非空で使用する。
+build_sortedは昇順配列、merge_withは自分の最大値<=otherの最小値で使用する。
+split/extract/mergeはノードの所有権を移す。split後の元の木やmerge後のotherは空。
+値・和・遅延加算はlong longに収まること。計算量は乱択による期待値。
+
+使える関数一覧
 SortedImplicitTreap tr;                         // 空の昇順 multiset を作成
 tr.build(v);                                   // v をソートして構築 期待 O(N log N)
 tr.build_sorted(v);                            // 昇順 v から構築 期待 O(N log N)
@@ -820,4 +828,12 @@ auto t=tr.extract_value_range(L,R);            // 値 [L,R] を tr から切り�
 tr.merge_with(move(other));                    // tr の最大値<=other の最小値として結合、other は空 期待 O(log N)
 
 auto v=tr.to_vector();                         // 昇順 vector に変換 O(N)
+
+基本の関数
+SortedImplicitTreap tr;
+tr.build(vl{3,1,3});
+tr.insert(2);
+auto second = tr.kth(1);                      // 2
+auto count = tr.count(3);                     // 2
+tr.erase(3);                                  // 3を1個削除
 */

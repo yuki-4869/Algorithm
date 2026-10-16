@@ -1,5 +1,3 @@
-//LiChaoTree
-
 template<class T = long long, bool MINIMIZE = true>
 struct LiChaoTree {
     static_assert(is_integral_v<T>);
@@ -35,8 +33,7 @@ struct LiChaoTree {
     LiChaoTree(T x_left, T x_right)
         : x_left(x_left),
           x_right(x_right) {
-
-        assert(x_left <= x_right);
+        do { if (!(x_left <= x_right)) std::abort(); } while (false);
 
         root = new_node();
     }
@@ -271,7 +268,7 @@ struct LiChaoTree {
     }
 
     T query(T x) const {
-        assert(x_left <= x && x <= x_right);
+        do { if (!(x_left <= x && x <= x_right)) std::abort(); } while (false);
 
         return query_impl(
             root,
@@ -283,8 +280,13 @@ struct LiChaoTree {
 };
 
 /*
-整数座標用、区間は両端を含む [L,R]
+細かい注意点
+整数座標用。座標区間とadd_segmentの区間はいずれも両端を含む[L,R]。
+trueが最小値、falseが最大値。queryのxは構築時の[L,R]内。
+有効な直線がないxでは、最小値版はnumeric_limits<T>::max()、最大値版はlowest()。
+a*x+bがTの範囲内に収まること。
 
+使える関数一覧
 LiChaoTree<ll> cht(L,R);                       // L<=x<=R 上で最小値を管理
 LiChaoTree<ll,false> cht(L,R);                 // L<=x<=R 上で最大値を管理
 
@@ -300,11 +302,9 @@ LiChaoTree<ll>::Line f(a,b);                   // 直線 y=ax+b
 cht.add_line(f);                               // Line 型でも追加可能
 cht.add_segment(f,l,r);                        // 区間への追加も可能
 
-※ MINIMIZE=true が最小値、false が最大値
-※ query(x) する x は初期化時の [L,R] 内である必要がある
-※ 直線が1本も有効でない x の query() は
-   最小値版なら numeric_limits<T>::max()
-   最大値版なら numeric_limits<T>::lowest() を返す
-
-※ a*x+b が T の範囲内に収まる必要がある
+基本の関数
+LiChaoTree<ll> cht(-10,10);
+cht.add_line(2,0);
+cht.add_segment(-1,3,-5,5);
+auto value = cht.query(2);                    // 1
 */

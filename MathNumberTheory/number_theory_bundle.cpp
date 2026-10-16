@@ -1,4 +1,3 @@
-
 struct LinearSieve{
     ll n;
     vl mn,primes,id,pi;
@@ -188,6 +187,13 @@ vmi multiple_mobius(vmi a,const LinearSieve& S){
 }
 
 /*
+細かい注意点
+1..Nを対象とする線形篩。照会のxは前計算範囲内、素因数分解はx>=1。
+変換用配列はN+1要素、添字0は未使用。変換は元配列を変更せず新配列を返す。
+factor_zobristは素因数集合の確率的ハッシュで、指数を区別しない。
+linear_sieveのLinearSieveと同名なので同時に貼らない。
+
+使える関数一覧
 LinearSieve S(N)  N以下を線形篩で前計算 / LinearSieve S(N) / O(N)
 
 bool is_prime(x)        素数か / S.is_prime(x) / 判定 / O(1)
@@ -217,5 +223,10 @@ vmi divisor_mobius(a,S)  約数ゼータの逆変換 / divisor_mobius(a,S) / 復
 vmi multiple_zeta(a,S)   b[x]=Σ_{x|m}a[m] / multiple_zeta(a,S) / 倍数和 / O(N loglogN)
 vmi multiple_mobius(a,S) 倍数ゼータの逆変換 / multiple_mobius(a,S) / 復元 / O(N loglogN)
 
+基本の関数
+LinearSieve sieve(20);
+auto factors = sieve.factor(12);             // {{2,2},{3,1}}
+auto phi = sieve.phi(12);                     // 4
+vmi counts(21,1); counts[0]=0;
+auto sums = divisor_zeta(counts,sieve);       // sums[12]==6
 */
-

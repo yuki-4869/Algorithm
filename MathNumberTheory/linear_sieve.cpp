@@ -41,20 +41,22 @@ struct LinearSieve{
 };
 
 /*
-bool isPrime(x) xが素数か返す O(1)
-vector<pair<ll,ll>> factorize(x) xを{素因数,指数}に分解 O(logx)
-vl divisors(x) xの約数を全て返す O(約数個数)
+細かい注意点
+NまでO(N)で前計算。isPrimeは対応範囲内、factorize/divisorsは1<=x<=Nで使用する。
+primeは素数一覧、spfは最小素因数、phiはEulerのφ関数、muはMöbius関数。
+number_theory_bundleのLinearSieveと同名なので同時に貼らない。
 
-ls.prime n以下の素数一覧
-ls.spf[x] xの最小素因数
-ls.phi[x] Eulerのφ関数
-ls.mu[x] Möbius関数
+使える関数一覧
+LinearSieve ls(N); // 構築 O(N)
+ls.isPrime(x);     // bool: 素数判定 O(1)
+ls.factorize(x);   // vector<pair<ll,ll>>: 素因数と指数 O(log x)
+ls.divisors(x);    // vector<ll>: 約数列挙 O(約数個数)
+ls.prime;          // vector<ll>: N以下の素数
+ls.spf[x], ls.phi[x], ls.mu[x]; // 最小素因数、φ、μ O(1)
 
-LinearSieve ls(N);
-bool p=ls.isPrime(x);
-auto f=ls.factorize(x);
-auto d=ls.divisors(x);
-
-初期構築 O(N)
-factorize/divisorsは1<=x<=Nを想定
+基本の関数
+LinearSieve ls(100);
+auto prime = ls.isPrime(97);                  // true
+auto factors = ls.factorize(12);             // {{2,2},{3,1}}
+auto divisors = ls.divisors(12);
 */

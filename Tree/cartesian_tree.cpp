@@ -1,6 +1,5 @@
-//CartesianTree(根が最小)
 template<class T> struct CartesianTree {
-    int root;  // root
+    int root;
     vector<int> par, left, right;
 
     CartesianTree() : root(0) {}
@@ -29,12 +28,22 @@ template<class T> struct CartesianTree {
     }
 };
 
-  
-  //rep(i,sz(v)) v[i] *= -1;//大きい数を根にしたいときはこれを挟む
-  CartesianTree<ll> ct(v);
-  
-  /*使い方
-  ct.par[x] xの親のindex(根の場合は-1)
-  ct.left[x] xの左子のindex(存在しない場合は-1)
-  ct.right[x] xの右子のindex(存在しない場合は-1)
-  */
+/*
+細かい注意点
+0-indexed、非空配列。最小値が根のCartesian TreeをO(N)で構築する。
+根の親と存在しない左右の子は-1。同値は先に現れた位置が上側になる。
+最大値を根にする場合は、符号反転が表現可能な値域で配列を反転して渡す。
+
+使える関数一覧
+CartesianTree<T> ct(A); // 配列から構築 O(N)
+ct.root;               // int: 根の添字 O(1)
+ct.par[v];             // int: 親の添字 O(1)
+ct.left[v];            // int: 左の子 O(1)
+ct.right[v];           // int: 右の子 O(1)
+
+基本の関数
+vl A={3,1,2};
+CartesianTree<ll> ct(A);
+auto root = ct.root;                         // 1
+auto parent = ct.par[0];                     // 1
+*/

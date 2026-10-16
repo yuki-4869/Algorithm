@@ -1,31 +1,15 @@
-// 整数集合を互いに離れた最大の半開区間 [l,r) で管理する。
-// Source: https://github.com/yuki-4869/Algorithm/blob/main/DataStructureBasic/range_set.cpp
-#include <algorithm>
-#include <initializer_list>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <map>
-#include <optional>
-#include <stdexcept>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
 template<class T = long long, class Count = T>
 class RangeSet {
-    static_assert(std::is_integral_v<T> && std::is_signed_v<T> && sizeof(T) <= 8,
-                  "RangeSet: T must be a signed integer of at most 64 bits");
+    static_assert(std::is_integral_v<T> && std::is_signed_v<T> && sizeof(T) <= 8);
     static_assert((std::is_integral_v<Count> && !std::is_same_v<Count, bool> && sizeof(Count) <= 8)
-                  || std::is_same_v<Count, __int128_t>,
-                  "RangeSet: Count must be an integer of at most 64 bits, or __int128_t");
+                  || std::is_same_v<Count, __int128_t>);
 
 public:
     using value_type = T;
     using count_type = Count;
     using ptt = std::pair<T, T>;
     using const_iterator = typename std::map<T, T>::const_iterator;
-    // covered_by() の従来の「見つからない」返り値だけに使用。内部に番兵は置かない。
+
     static constexpr T TINF = std::numeric_limits<T>::max() / 2;
 
 private:
@@ -37,7 +21,7 @@ private:
     }
     static Count checked_count(wide_type value) {
         if (value > static_cast<wide_type>(std::numeric_limits<Count>::max()))
-            throw std::overflow_error("RangeSet: covered length exceeds Count");
+            std::abort();
         return static_cast<Count>(value);
     }
 
@@ -61,7 +45,6 @@ public:
         return *this;
     }
 
-    // xを含む保持区間。存在しなければnullopt。
     std::optional<ptt> covering_interval(T x) const {
         auto it = ranges_.upper_bound(x);
         if (it == ranges_.begin()) return std::nullopt;
@@ -69,7 +52,7 @@ public:
         if (x < it->second) return ptt{it->first, it->second};
         return std::nullopt;
     }
-    // [l,r)全体を含む保持区間。l>=rは空区間として{l,l}を返す。
+
     std::optional<ptt> covering_interval(T l, T r) const {
         if (l >= r) return ptt{l, l};
         auto interval = covering_interval(l);
@@ -79,7 +62,7 @@ public:
     bool covered(T l, T r) const { return covering_interval(l, r).has_value(); }
     bool covered(T x) const { return covering_interval(x).has_value(); }
     bool contains(T x) const { return covered(x); }
-    // 互換API。空区間なら{0,0}、未被覆なら{-TINF,-TINF}。
+
     ptt covered_by(T l, T r) const {
         if (l >= r) return {0, 0};
         return covering_interval(l, r).value_or(ptt{-TINF, -TINF});
@@ -91,7 +74,6 @@ public:
         return it != ranges_.begin() && std::prev(it)->second > l;
     }
 
-    // [l,r)を追加。重なり・左右の隣接をすべて統合し、新規追加数を返す。
     Count insert(T l, T r) {
         if (l >= r) return 0;
         auto first = ranges_.lower_bound(l);
@@ -110,7 +92,6 @@ public:
         if (first == last) {
             ranges_.emplace_hint(last, merged_l, merged_r);
         } else {
-            // 既存ノードを再利用し、mapのconstキーへの代入を避ける。
             auto rest = std::next(first);
             auto node = ranges_.extract(first);
             ranges_.erase(rest, last);
@@ -123,11 +104,10 @@ public:
     }
     Count insert(T x) {
         if (x == std::numeric_limits<T>::max())
-            throw std::out_of_range("RangeSet: x+1 is not representable");
+            std::abort();
         return insert(x, static_cast<T>(x + 1));
     }
 
-    // [l,r)を削除。左右に残る断片を保持し、実際の削除数を返す。
     Count erase(T l, T r) {
         if (l >= r) return 0;
         auto it = ranges_.lower_bound(l);
@@ -138,7 +118,6 @@ public:
             removed += length(std::max(a, l), std::min(b, r));
             if (a < l) {
                 if (r < b) {
-                    // 分割に必要なノードを先に確保。元ノードは左側として残す。
                     ranges_.emplace(r, b);
                     it->second = l;
                     break;
@@ -163,7 +142,6 @@ public:
         return erase(x, static_cast<T>(x + 1));
     }
 
-    // x以上で、集合に含まれない最小の整数。
     T mex(T x = 0) const {
         auto interval = covering_interval(x);
         return interval ? interval->second : x;
@@ -181,7 +159,7 @@ public:
     }
 
     Count cover_length() const { return total_; }
-    std::size_t size() const { return ranges_.size(); }  // 保持する区間数
+    std::size_t size() const { return ranges_.size(); }
     bool empty() const { return ranges_.empty(); }
     void clear() { ranges_.clear(); total_ = 0; }
     void swap(RangeSet& other) noexcept {
@@ -199,14 +177,20 @@ public:
 };
 
 /*
-RangeSet 公開API一覧
+細かい注意点
+整数座標の集合。区間は半開区間[l,r)。Tは座標、Countは個数の型（既定long long）。
+ptt=pair<T,T>。K/K2はrs/otherの操作前の区間数、Mは初期区間数、Dは走査・統合・削除する区間数。
+Tは64bit以下の符号付き整数。Countはbool以外の64bit以下の整数または__int128_t。
+Tの最大値は格納不可。insert(最大値)や総被覆数のCount超過はメッセージなしで停止。
+erase(最大値)は0。大きな被覆数にはRangeSet<ll,__int128_t>を使う。
+l>=rではinsert/erase/count_coveredは0、coveredはtrue、overlapsはfalse。
+空区間のcovering_interval(l,r)は{l,l}、covered_by(l,r)は{0,0}。
+size()は保持区間数、cover_length()は被覆された整数の個数。
+列挙は左端昇順の読み取り専用。走査中に集合を更新しない。intervals()は独立なコピー。
+TINFはcovered_byの互換返り値用。座標制限や内部番兵ではない。
+空ならbegin()==end()。解放O(K)。output()は明示呼び出し時だけ標準出力する。
 
-任意の整数座標を扱う。区間は半開区間 [l,r)（lを含み、rを含まない）。
-T = 座標の型、Count = 個数の型。省略時はどちらもlong long。
-ptt = pair<T,T>、const_iterator = 読み取り専用の区間イテレータ。
-K = rsの保持区間数、K2 = otherの保持区間数、M = 初期区間数。
-D = 操作で統合・削除・走査する区間数。計算量のK,K2は操作前の値。
-
+使える関数一覧
 // 構築・コピー・ムーブ（コンストラクタには返り値はない）
 RangeSet<T, Count> rs;                        // 空集合で初期化 O(1)
 RangeSet<T, Count> rs{{a,b},{c,d}};           // M個の区間から構築、重複・隣接を統合 O(M log(M+1))
@@ -249,16 +233,11 @@ rs.end();                                     // const_iterator: 最後の区間
 for (auto [l,r] : rs) { ... }                 // 読み取り専用で全区間を左端の昇順に走査 O(K)
 rs.output();                                  // void: "RangeSet: [l,r) ..."形式で全区間を標準出力 O(K)
 
-// 空区間（l>=r）の扱い
-// insert/erase/count_coveredは0、coveredはtrue、overlapsはfalseを返す O(1)。
-// covering_interval(l,r)はoptionalに{l,l}を格納、covered_by(l,r)は{0,0}を返す O(1)。
-// emptyならbegin()==end()。デストラクタによる全区間の解放はO(K)。
-
-// 型・例外・利用上の注意
-// Tは64bit以下の符号付き整数型。Countは64bit以下の整数型（bool以外）または__int128_t。
-// 大きな被覆数には RangeSet<long long, __int128_t> rs; を使用できる。
-// 総被覆数がCountの最大値を超える追加はoverflow_error。集合は変わらない。
-// Tの最大値は格納できない。insert(最大値)はout_of_range、erase(最大値)は0を返す。
-// 区間の走査中に集合を更新しないこと。返されたvectorの変更は元の集合に影響しない。
-// TINFはcovered_byの互換返り値用の定数で、内部の番兵や座標制限には使わない。
+基本の関数
+RangeSet<ll> rs;                              // 空集合
+rs.insert(1,10);                              // [1,10)を追加
+rs.erase(3,7);                                // [3,7)を削除
+auto covered = rs.covered(1,3);               // true
+auto mex = rs.mex(1);                         // 3
+auto count = rs.cover_length();               // 5
 */

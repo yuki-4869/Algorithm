@@ -1,5 +1,3 @@
-//HLD
-
 struct HLD {
     int n;
     vector<vector<int>> graph;
@@ -29,15 +27,15 @@ struct HLD {
           rev(n, -1) {}
 
     void add_edge(int a, int b) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         graph[a].push_back(b);
         graph[b].push_back(a);
     }
 
     void build(int root = 0) {
-        assert(0 <= root && root < n);
+        do { if (!(0 <= root && root < n)) std::abort(); } while (false);
 
         fill(parent.begin(), parent.end(), -2);
         fill(depth.begin(), depth.end(), 0);
@@ -117,8 +115,8 @@ struct HLD {
     }
 
     int lca(int a, int b) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         while (head[a] != head[b]) {
             if (depth[head[a]] < depth[head[b]]) {
@@ -138,7 +136,7 @@ struct HLD {
     }
 
     int kth_ancestor(int v, int k) const {
-        assert(0 <= v && v < n);
+        do { if (!(0 <= v && v < n)) std::abort(); } while (false);
 
         if (k < 0 || k > depth[v]) return -1;
 
@@ -156,8 +154,8 @@ struct HLD {
     }
 
     int jump(int a, int b, int k) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         int c = lca(a, b);
 
@@ -175,21 +173,21 @@ struct HLD {
     }
 
     bool is_ancestor(int a, int b) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         return in[a] <= in[b] && in[b] < out[a];
     }
 
     pair<int, int> subtree(int v, bool edge = false) const {
-        assert(0 <= v && v < n);
+        do { if (!(0 <= v && v < n)) std::abort(); } while (false);
 
         return {in[v] + (edge ? 1 : 0), out[v]};
     }
 
     vector<pair<int, int>> path(int a, int b, bool edge = false) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         vector<pair<int, int>> result;
 
@@ -225,8 +223,8 @@ struct HLD {
         int b,
         bool edge = false
     ) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         vector<tuple<int, int, bool>> left;
         vector<tuple<int, int, bool>> right;
@@ -280,45 +278,34 @@ struct HLD {
 };
 
 /*
-0-indexed
+細かい注意点
+0-indexed、無向木。全辺をadd_edgeした後にbuild(root)を呼ぶ。
+部分木・パスの各区間はEuler Tour上の半開区間[l,r)。
+辺の値は深い側の頂点位置に置く。path(...,true)/subtree(...,true)で辺区間を取得する。
+pathは列挙順を保証せず、和/min/max/xorなど可換演算向け。
+path_orderedはa->b順で列挙し、reversed=trueの区間はr-1からlへ読む。
+返すパス区間数はO(log N)。非可換演算では向きも反映する。
 
-HLD hld(N);                                     // N 頂点で初期化 O(N)
+使える関数一覧
+HLD hld(N);                         // 初期化 O(N)
+hld.add_edge(a,b);                  // void: 無向辺を追加 O(1)
+hld.build(root=0);                  // void: HL分解 O(N)
+hld.lca(a,b);                       // int: LCA O(log N)
+hld.dist_edges(a,b);                // int: 辺数 O(log N)
+hld.kth_ancestor(v,k);              // int: k個上の祖先、なければ-1 O(log N)
+hld.jump(a,b,k);                    // int: a->bをk辺進む、なければ-1 O(log N)
+hld.is_ancestor(a,b);               // bool: aがbの祖先か O(1)
+hld.subtree(v,edge=false);          // pair<int,int>: 部分木区間 O(1)
+hld.path(a,b,edge=false);           // vector<pair<int,int>>: パス区間 O(log N)
+hld.path_ordered(a,b,edge=false);   // vector<tuple<int,int,bool>>: 向き付きパス O(log N)
+hld.in[v], hld.out[v], hld.rev[i];   // Euler Tourの位置と逆引き O(1)
+hld.parent[v], hld.depth[v], hld.size[v], hld.head[v]; // 根付き木・分解情報 O(1)
 
-hld.add_edge(a,b);                             // 無向辺 a-b を追加 O(1)
-hld.build(root);                               // root を根として HL 分解 O(N)
-
-hld.lca(a,b);                                  // a,b の最小共通祖先 O(log N)
-hld.dist_edges(a,b);                           // a-b 間の辺数 O(log N)
-hld.kth_ancestor(v,k);                         // v から k 個上の祖先、存在しなければ -1 O(log N)
-hld.jump(a,b,k);                               // a→b のパスを k 辺進んだ頂点、存在しなければ -1 O(log N)
-hld.is_ancestor(a,b);                          // a が b の祖先なら true O(1)
-
-hld.in[v];                                     // v の Euler Tour 上の位置 O(1)
-hld.out[v];                                    // v の部分木区間の右端 O(1)
-hld.rev[i];                                    // Euler Tour 上の位置 i に対応する頂点 O(1)
-hld.parent[v];                                 // v の親、root は -1 O(1)
-hld.depth[v];                                  // root から v までの辺数 O(1)
-hld.size[v];                                   // v の部分木サイズ O(1)
-hld.head[v];                                   // v が属する heavy path の先頭 O(1)
-
-auto [l,r] = hld.subtree(v);                   // v の部分木の頂点区間 [l,r) O(1)
-auto [l,r] = hld.subtree(v,true);              // v の部分木に完全に含まれる辺区間 [l,r) O(1)
-
-for(auto [l,r] : hld.path(a,b)){               // a-b パスを O(log N) 個の頂点区間 [l,r) に分解
-    // seg.prod(l,r) など
-}
-
-for(auto [l,r] : hld.path(a,b,true)){          // a-b パスを辺区間として分解
-    // 各辺の値を「深い側の頂点」に持たせる
-}
-
-// path() は区間の順序を保証しないため、和・min・max・xor など可換な演算向け
-
-for(auto [l,r,reversed] : hld.path_ordered(a,b)){
-    // a→b の順番で区間を取得
-    // reversed=false : l→r-1 の順
-    // reversed=true  : r-1→l の順
-}
-
-// path_ordered() は文字列結合・行列積など非可換演算にも利用可能
+基本の関数
+HLD hld(3);
+hld.add_edge(0,1); hld.add_edge(1,2);
+hld.build(0);
+auto ancestor = hld.lca(0,2);                 // 0
+auto intervals = hld.path(0,2);               // 頂点パスの区間列
+auto [l,r] = hld.subtree(1);                  // 部分木の区間
 */

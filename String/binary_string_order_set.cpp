@@ -1,5 +1,3 @@
-//01-StringWavelerMatrix
-
 class StringWaveletMatrix {
     struct Node {
         int ch[2] = {0, 0};
@@ -12,12 +10,11 @@ class StringWaveletMatrix {
     vector<Node> tr;
     vector<int> free_ids;
 
-    // indexed data
     vector<string> a;
     vector<int> one_cnt;
 
     static int bval(char c) {
-        assert(c == '0' || c == '1');
+        do { if (!(c == '0' || c == '1')) std::abort(); } while (false);
         return c - '0';
     }
 
@@ -39,14 +36,14 @@ class StringWaveletMatrix {
     }
 
     void check_key(string_view s) const {
-        assert((int)s.size() == L);
+        do { if (!((int)s.size() == L)) std::abort(); } while (false);
         for (char c : s) {
-            assert(c == '0' || c == '1');
+            do { if (!(c == '0' || c == '1')) std::abort(); } while (false);
         }
     }
 
     void insert_raw(string_view s) {
-        assert((int)s.size() == L);
+        do { if (!((int)s.size() == L)) std::abort(); } while (false);
 
         int x = root;
         ++tr[x].cnt;
@@ -64,7 +61,7 @@ class StringWaveletMatrix {
     }
 
     void erase_raw(string_view s) {
-        assert((int)s.size() == L);
+        do { if (!((int)s.size() == L)) std::abort(); } while (false);
 
         vector<int> path(L + 1);
 
@@ -75,19 +72,18 @@ class StringWaveletMatrix {
         for (int d = 0; d < L; d++) {
             int b = bval(s[d]);
 
-            assert(tr[x].ch[b]);
+            do { if (!(tr[x].ch[b])) std::abort(); } while (false);
 
             x = tr[x].ch[b];
             path[d + 1] = x;
         }
 
-        assert(tr[x].cnt > 0);
+        do { if (!(tr[x].cnt > 0)) std::abort(); } while (false);
 
         for (int v : path) {
             --tr[v].cnt;
         }
 
-        // 不要になった suffix を再利用可能にする
         for (int d = L; d >= 1; d--) {
             int v = path[d];
 
@@ -96,7 +92,7 @@ class StringWaveletMatrix {
             int p = path[d - 1];
             int b = bval(s[d - 1]);
 
-            assert(tr[p].ch[b] == v);
+            do { if (!(tr[p].ch[b] == v)) std::abort(); } while (false);
 
             tr[p].ch[b] = 0;
             recycle_node(v);
@@ -116,10 +112,10 @@ public:
         L = s.empty() ? 0 : (int)s[0].size();
 
         for (auto &x : s) {
-            assert((int)x.size() == L);
+            do { if (!((int)x.size() == L)) std::abort(); } while (false);
 
             for (char c : x) {
-                assert(c == '0' || c == '1');
+                do { if (!(c == '0' || c == '1')) std::abort(); } while (false);
             }
         }
 
@@ -138,7 +134,6 @@ public:
         tr.clear();
         free_ids.clear();
 
-        // 最大でもほぼ N*K ノード
         tr.reserve(
             2 + (size_t)a.size() * L
         );
@@ -150,10 +145,6 @@ public:
             insert_raw(x);
         }
     }
-
-    // --------------------------------
-    // basic
-    // --------------------------------
 
     int size() const {
         return tr[root].cnt;
@@ -168,19 +159,19 @@ public:
     }
 
     const string& get_key(int id) const {
-        assert(0 <= id && id < rows());
+        do { if (!(0 <= id && id < rows())) std::abort(); } while (false);
         return a[id];
     }
 
     int get_bit(int id, int p) const {
-        assert(0 <= id && id < rows());
-        assert(0 <= p && p < L);
+        do { if (!(0 <= id && id < rows())) std::abort(); } while (false);
+        do { if (!(0 <= p && p < L)) std::abort(); } while (false);
 
         return a[id][p] - '0';
     }
 
     int ones(int id) const {
-        assert(0 <= id && id < rows());
+        do { if (!(0 <= id && id < rows())) std::abort(); } while (false);
 
         return one_cnt[id];
     }
@@ -189,12 +180,8 @@ public:
         return L - ones(id);
     }
 
-    // --------------------------------
-    // update
-    // --------------------------------
-
     void set_key(int id, string s) {
-        assert(0 <= id && id < rows());
+        do { if (!(0 <= id && id < rows())) std::abort(); } while (false);
 
         check_key(s);
 
@@ -214,9 +201,9 @@ public:
     }
 
     void set_bit(int id, int p, int b) {
-        assert(0 <= id && id < rows());
-        assert(0 <= p && p < L);
-        assert(b == 0 || b == 1);
+        do { if (!(0 <= id && id < rows())) std::abort(); } while (false);
+        do { if (!(0 <= p && p < L)) std::abort(); } while (false);
+        do { if (!(b == 0 || b == 1)) std::abort(); } while (false);
 
         int old = a[id][p] - '0';
 
@@ -231,8 +218,8 @@ public:
     }
 
     void flip(int id, int p) {
-        assert(0 <= id && id < rows());
-        assert(0 <= p && p < L);
+        do { if (!(0 <= id && id < rows())) std::abort(); } while (false);
+        do { if (!(0 <= p && p < L)) std::abort(); } while (false);
 
         set_bit(
             id,
@@ -240,10 +227,6 @@ public:
             1 - get_bit(id, p)
         );
     }
-
-    // --------------------------------
-    // count
-    // --------------------------------
 
     int count_equal(string_view s) const {
         check_key(s);
@@ -259,7 +242,6 @@ public:
         return tr[x].cnt;
     }
 
-    // key < s
     int count_less(string_view s) const {
         check_key(s);
 
@@ -285,25 +267,21 @@ public:
         return ret;
     }
 
-    // key <= s
     int count_leq(string_view s) const {
         return count_less(s)
              + count_equal(s);
     }
 
-    // key > s
     int count_greater(string_view s) const {
         return size()
              - count_leq(s);
     }
 
-    // key >= s
     int count_geq(string_view s) const {
         return size()
              - count_less(s);
     }
 
-    // l <= key < r
     int count_range(
         string_view l,
         string_view r
@@ -312,9 +290,8 @@ public:
              - count_less(l);
     }
 
-    // prefix から始まる文字列数
     int count_prefix(string_view p) const {
-        assert((int)p.size() <= L);
+        do { if (!((int)p.size() <= L)) std::abort(); } while (false);
 
         int x = root;
 
@@ -329,13 +306,8 @@ public:
         return tr[x].cnt;
     }
 
-    // --------------------------------
-    // order statistics
-    // --------------------------------
-
-    // 0-indexed
     string kth_smallest(int k) const {
-        assert(0 <= k && k < size());
+        do { if (!(0 <= k && k < size())) std::abort(); } while (false);
 
         string ret;
         ret.reserve(L);
@@ -361,16 +333,15 @@ public:
                 ret.push_back('1');
                 x = tr[x].ch[1];
 
-                assert(x);
+                do { if (!(x)) std::abort(); } while (false);
             }
         }
 
         return ret;
     }
 
-    // 0-indexed
     string kth_largest(int k) const {
-        assert(0 <= k && k < size());
+        do { if (!(0 <= k && k < size())) std::abort(); } while (false);
 
         return kth_smallest(
             size() - 1 - k
@@ -393,7 +364,6 @@ public:
         return kth_largest(0);
     }
 
-    // >= s の最小
     optional<string>
     lower_bound_key(string_view s) const {
         int k = count_less(s);
@@ -405,7 +375,6 @@ public:
         return kth_smallest(k);
     }
 
-    // > s の最小
     optional<string>
     upper_bound_key(string_view s) const {
         int k = count_leq(s);
@@ -417,7 +386,6 @@ public:
         return kth_smallest(k);
     }
 
-    // < s の最大
     optional<string>
     prev_key(string_view s) const {
         int k = count_less(s);
@@ -429,15 +397,10 @@ public:
         return kth_smallest(k - 1);
     }
 
-    // >= s の最小
     optional<string>
     next_key(string_view s) const {
         return lower_bound_key(s);
     }
-
-    // --------------------------------
-    // indexed versions
-    // --------------------------------
 
     int count_equal_id(int id) const {
         return count_equal(
@@ -479,37 +442,15 @@ public:
 };
 
 /*
-0-indexed
+細かい注意点
+0-indexed。全て同じ長さKの01文字列を管理し、大小は辞書順（同長の二進数順と一致）。
+キーの重複可。kthのkは0-indexedで、重複も1つずつ数える。
+build後も同じ長さの任意のキーに変更でき、universeの事前登録は不要。
+flipは削除・1bit反転・再挿入。count_prefixは指定prefixで始まるキーの個数。
+構築O(NK)、更新・通常検索O(K)、メモリO(NK)。キー取得の参照を更新後まで保持しない。
 
-
-
-※ key の大小比較は01-stringの辞書順
-   長さが全て等しいので、二進整数としての大小関係とも一致する
-
-※ build 後も任意の01-stringへ set_key 可能
-   universe の事前登録は不要
-
-※ flip(i,j) は
-   erase -> 1bit反転 -> insert
-   を内部で行う
-
-※ 同じ key を複数個持つことが可能
-
-※ kth_smallest / kth_largest は重複も1個ずつ数える
-
-※ count_prefix("101") は
-   "101..." で始まる全 key の個数
-
-※ 全体計算量
-   build   : O(NK)
-   各更新  : O(K)
-   各検索  : O(K)
-   メモリ  : O(NK)
-
-
+使える関数一覧
 StringWaveletMatrix wm(A);            // O(NK)
-// A : vector<string>
-// 全て同じ長さ K の 01-string
 
 wm.size();                            // 管理している文字列数                    O(1)
 wm.rows();                            // size() と同じ                           O(1)
@@ -549,7 +490,13 @@ wm.next_key(s);                       // s以上の最小 key、なければ nul
 wm.min_key();                         // 全体の最小 key、空なら nullopt           O(K)
 wm.max_key();                         // 全体の最大 key、空なら nullopt           O(K)
 
-wm.can_pass(i,M);                    
+wm.can_pass(i,M);
                                      // key[i] != 00...0 かつ
-                                     // key>=key[i] の人数が M 以下なら true  0(K)
+                                     // key>=key[i] の人数が M 以下なら true  O(K)
+
+基本の関数
+StringWaveletMatrix wm(vector<string>{"001","101","001"});
+auto count = wm.count_equal("001");          // 2
+wm.flip(0,0);                                // 先頭キーが101へ変化
+auto smallest = wm.kth_smallest(0);           // 001
 */

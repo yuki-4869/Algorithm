@@ -1,5 +1,3 @@
-//Miller-Rabin/Pollard Rho
-
 struct PollardRho {
     using u64 = uint64_t;
     using u128 = __uint128_t;
@@ -139,7 +137,7 @@ struct PollardRho {
     }
 
     static vector<u64> factorize(u64 n) {
-        assert(n >= 1);
+        do { if (!(n >= 1)) std::abort(); } while (false);
 
         vector<u64> result;
 
@@ -171,35 +169,21 @@ struct PollardRho {
 };
 
 /*
-64 bit 非負整数用
+細かい注意点
+uint64_tの非負整数用。factorizeの入力はn>=1、n=1では空配列。
+is_primeは使用基底によりuint64_t全域で決定的。因数探索のPollard Rhoは乱択。
+素因数は重複込みの昇順、factorize_countは素因数と指数の昇順。
+mod_mulは__uint128_tを使用。mod_mul/mod_powの法は正。
 
-PollardRho::is_prime(n);                       // n が素数なら true
-                                                // deterministic Miller-Rabin
-                                                // uint64_t 全域で利用可能
+使える関数一覧
+PollardRho::is_prime(n);        // bool: 素数判定、固定個数の基底でO(log n)
+PollardRho::factorize(n);       // vector<uint64_t>: 素因数分解、乱択
+PollardRho::factorize_count(n); // vector<pair<uint64_t,int>>: 素因数と指数
+PollardRho::mod_pow(a,b,mod);   // uint64_t: a^b mod mod O(log b)
+PollardRho::mod_mul(a,b,mod);   // uint64_t: a*b mod mod O(1)
 
-auto fac = PollardRho::factorize(n);            // n を素因数分解
-                                                // 素因数を重複込み・昇順で返す
-
-auto fac = PollardRho::factorize_count(n);      // {{素因数,指数},...} の形で返す
-                                                // 素因数は昇順
-
-PollardRho::mod_pow(a,b,mod);                   // a^b mod mod
-PollardRho::mod_mul(a,b,mod);                   // a*b mod mod
-                                                // __uint128_t を使うので
-                                                // uint64_t の積でもoverflowしない
-
-例:
-PollardRho::factorize(60)
-    -> {2,2,3,5}
-
-PollardRho::factorize_count(60)
-    -> {{2,2},{3,1},{5,1}}
-
-PollardRho::is_prime(1000000007)
-    -> true
-
-※ factorize(1) は空 vector を返す
-※ n >= 1
-※ 確率的なのは Pollard Rho の因数探索部分
-※ is_prime() はこの基底集合により uint64_t 全域で deterministic
+基本の関数
+auto prime = PollardRho::is_prime(1000000007); // true
+auto factors = PollardRho::factorize(60);     // {2,2,3,5}
+auto counted = PollardRho::factorize_count(60);// {{2,2},{3,1},{5,1}}
 */

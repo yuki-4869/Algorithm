@@ -38,21 +38,27 @@ struct DSUonTree{
         dfs2(root,-1,true,add,del,answer);
     }
 };
+
 /*
-void run(add,del,answer,root=0) 全頂点の部分木情報をDSU on Treeで処理する O(NlogN)
+細かい注意点
+0-indexed、無向木。入力はgraph=vector<vector<ll>>。
+answer(v)の時点で、根付き木のvの部分木全体が現在のデータ構造に入っている。
+addとdelは互いに逆の処理を実装する。各コールバックO(1)なら全体O(N log N)。
+内部の再帰を使うため、深い木ではスタック容量に注意する。
 
-add(v) 頂点vを現在のデータ構造に追加
-del(v) 頂点vを現在のデータ構造から削除
-answer(v) vの部分木全体が入った状態で答えを保存
+使える関数一覧
+DSUonTree dsu(g);                 // 木から構築 O(N)
+dsu.run(add,del,answer,root=0);    // void: 全部分木クエリを処理 O(N log N)
+add(v);                          // 頂点vを追加する利用者定義の処理
+del(v);                          // 頂点vを削除する利用者定義の処理
+answer(v);                       // vの部分木の答えを保存する利用者定義の処理
 
+基本の関数
+graph g={{1,2},{0},{0}};
 DSUonTree dsu(g);
-dsu.run(add,del,answer);
-
-auto add=[&](ll v){cnt[color[v]]++;};
-auto del=[&](ll v){cnt[color[v]]--;};
-auto answer=[&](ll v){ans[v]=...;};
-
-answer(v)が呼ばれる時点でvの部分木全体が保持されている
-色の種類数・頻度・最大頻度などの部分木クエリ向け
-g=vector<vector<ll>>
+ll count=0; vl answers(3);
+auto add=[&](ll v){++count;};
+auto del=[&](ll v){--count;};
+auto answer=[&](ll v){answers[v]=count;};
+dsu.run(add,del,answer);                      // {3,1,1}
 */

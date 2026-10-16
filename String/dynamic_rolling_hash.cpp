@@ -1,4 +1,3 @@
-
 struct DynamicRollingHash {
     using ll=long long; using ull=unsigned long long; using u128=__uint128_t;
     static constexpr ull MOD=(1ULL<<61)-1;
@@ -33,7 +32,7 @@ public:
     static Hash concat_all(initializer_list<Hash> v){ Hash r; for(auto&h:v) r=concat(r,h); return r; }
     static Hash concat_all(const vector<Hash>&v){ Hash r; for(auto&h:v) r=concat(r,h); return r; }
     static Hash reversed(Hash h){ swap(h.f,h.r); return h; }
-    static Hash repeat(Hash h,long long k){ assert(k>=0); Hash r; while(k){ if(k&1) r=concat(r,h); h=concat(h,h); k>>=1; } return r; }
+    static Hash repeat(Hash h,long long k){ do { if (!(k>=0)) std::abort(); } while (false); Hash r; while(k){ if(k&1) r=concat(r,h); h=concat(h,h); k>>=1; } return r; }
     static bool same(const Hash&a,const Hash&b){ return a.len==b.len&&a.f==b.f; }
     static bool same_reverse(const Hash&a,const Hash&b){ return a.len==b.len&&a.f==b.r; }
 
@@ -93,36 +92,36 @@ public:
     void clear(){destroy(root);root=nullptr;}
     void assign(const string&s){clear();root=build_nodes(vals(s));}
     template<class T> void assign(const vector<T>&a){clear();root=build_nodes(vals(a));}
-    ll get(int i){assert(0<=i&&i<size());return get_rec(root,i);}
-    void set(int i,ll x){assert(0<=i&&i<size());set_rec(root,i,x);} void set(int i,char c){set(i,(ll)(unsigned char)c);}
+    ll get(int i){do { if (!(0<=i&&i<size())) std::abort(); } while (false);return get_rec(root,i);}
+    void set(int i,ll x){do { if (!(0<=i&&i<size())) std::abort(); } while (false);set_rec(root,i,x);} void set(int i,char c){set(i,(ll)(unsigned char)c);}
 
-    void insert(int p,ll x){assert(0<=p&&p<=size());insert_nodes(p,new Node(x));}
+    void insert(int p,ll x){do { if (!(0<=p&&p<=size())) std::abort(); } while (false);insert_nodes(p,new Node(x));}
     void insert(int p,char c){insert(p,(ll)(unsigned char)c);}
-    void insert(int p,const string&s){assert(0<=p&&p<=size());insert_nodes(p,build_nodes(vals(s)));}
-    template<class T> void insert(int p,const vector<T>&v){assert(0<=p&&p<=size());insert_nodes(p,build_nodes(vals(v)));}
+    void insert(int p,const string&s){do { if (!(0<=p&&p<=size())) std::abort(); } while (false);insert_nodes(p,build_nodes(vals(s)));}
+    template<class T> void insert(int p,const vector<T>&v){do { if (!(0<=p&&p<=size())) std::abort(); } while (false);insert_nodes(p,build_nodes(vals(v)));}
     void push_front(ll x){insert(0,x);} void push_back(ll x){insert(size(),x);}
     void erase(int p){erase(p,p+1);}
-    void erase(int l,int r){assert(0<=l&&l<=r&&r<=size());replace_nodes(l,r,nullptr);}
-    void replace(int l,int r,const string&s){assert(0<=l&&l<=r&&r<=size());replace_nodes(l,r,build_nodes(vals(s)));}
-    template<class T> void replace(int l,int r,const vector<T>&v){assert(0<=l&&l<=r&&r<=size());replace_nodes(l,r,build_nodes(vals(v)));}
+    void erase(int l,int r){do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false);replace_nodes(l,r,nullptr);}
+    void replace(int l,int r,const string&s){do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false);replace_nodes(l,r,build_nodes(vals(s)));}
+    template<class T> void replace(int l,int r,const vector<T>&v){do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false);replace_nodes(l,r,build_nodes(vals(v)));}
 
-    void range_assign(int l,int r,ll x){assert(0<=l&&l<=r&&r<=size());Node *a,*b,*c;split3(root,l,r,a,b,c);apply_assign(b,x);root=merge(merge(a,b),c);}
+    void range_assign(int l,int r,ll x){do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false);Node *a,*b,*c;split3(root,l,r,a,b,c);apply_assign(b,x);root=merge(merge(a,b),c);}
     void range_assign(int l,int r,char c){range_assign(l,r,(ll)(unsigned char)c);}
-    void reverse(int l,int r){assert(0<=l&&l<=r&&r<=size());Node *a,*b,*c;split3(root,l,r,a,b,c);apply_rev(b);root=merge(merge(a,b),c);}
+    void reverse(int l,int r){do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false);Node *a,*b,*c;split3(root,l,r,a,b,c);apply_rev(b);root=merge(merge(a,b),c);}
     void rotate(int l,int r,long long k){
-        assert(0<=l&&l<=r&&r<=size()); int n=r-l; if(n<=1)return; k%=n;if(k<0)k+=n;if(!k)return;
+        do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false); int n=r-l; if(n<=1)return; k%=n;if(k<0)k+=n;if(!k)return;
         Node *a,*b,*c,*x,*y; split3(root,l,r,a,b,c); split(b,n-(int)k,x,y); root=merge(merge(a,merge(y,x)),c);
     }
     void cut_and_paste(int l,int r,int p){
-        assert(0<=l&&l<=r&&r<=size()); int n=r-l; assert(0<=p&&p<=size()-n);
+        do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false); int n=r-l; do { if (!(0<=p&&p<=size()-n)) std::abort(); } while (false);
         Node *a,*m,*c; split3(root,l,r,a,m,c); root=merge(a,c); Node*b;split(root,p,a,b);root=merge(merge(a,m),b);
     }
     void swap_ranges(int l1,int r1,int l2,int r2){
-        assert(0<=l1&&l1<=r1&&r1<=l2&&l2<=r2&&r2<=size()); Node *a,*x,*b,*y,*c,*t;
+        do { if (!(0<=l1&&l1<=r1&&r1<=l2&&l2<=r2&&r2<=size())) std::abort(); } while (false); Node *a,*x,*b,*y,*c,*t;
         split(root,l1,a,t);split(t,r1-l1,x,t);split(t,l2-r1,b,t);split(t,r2-l2,y,c);root=merge(merge(merge(merge(a,y),b),x),c);
     }
 
-    Hash prod(int l,int r){ assert(0<=l&&l<=r&&r<=size()); Node *a,*b,*c;split3(root,l,r,a,b,c);Hash h=hs(b);root=merge(merge(a,b),c);return h; }
+    Hash prod(int l,int r){ do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false); Node *a,*b,*c;split3(root,l,r,a,b,c);Hash h=hs(b);root=merge(merge(a,b),c);return h; }
     Hash all_prod()const{return hs(root);} array<ull,2> hash(int l,int r){return prod(l,r).f;} array<ull,2> rev_hash(int l,int r){return prod(l,r).r;}
     bool equal(int l1,int r1,int l2,int r2){return r1-l1==r2-l2&&same(prod(l1,r1),prod(l2,r2));}
     bool reverse_equal(int l1,int r1,int l2,int r2){return r1-l1==r2-l2&&same_reverse(prod(l1,r1),prod(l2,r2));}
@@ -149,15 +148,15 @@ public:
     int compare(int l1,int r1,int l2,int r2){return compare_with(*this,l1,r1,l2,r2);} bool less(int l1,int r1,int l2,int r2){return compare(l1,r1,l2,r2)<0;}
 
     int pal_radius_odd(int c){
-        assert(0<=c&&c<size()); int ok=0,ng=min(c,size()-1-c)+1; while(ng-ok>1){int m=(ok+ng)/2;(is_palindrome(c-m,c+m+1)?ok:ng)=m;} return ok;
+        do { if (!(0<=c&&c<size())) std::abort(); } while (false); int ok=0,ng=min(c,size()-1-c)+1; while(ng-ok>1){int m=(ok+ng)/2;(is_palindrome(c-m,c+m+1)?ok:ng)=m;} return ok;
     }
     int pal_radius_even(int c){
-        assert(0<=c&&c<=size()); int ok=0,ng=min(c,size()-c)+1; while(ng-ok>1){int m=(ok+ng)/2;(is_palindrome(c-m,c+m)?ok:ng)=m;} return ok;
+        do { if (!(0<=c&&c<=size())) std::abort(); } while (false); int ok=0,ng=min(c,size()-c)+1; while(ng-ok>1){int m=(ok+ng)/2;(is_palindrome(c-m,c+m)?ok:ng)=m;} return ok;
     }
     pair<int,int> max_palindrome_odd(int c){int d=pal_radius_odd(c);return{c-d,c+d+1};}
     pair<int,int> max_palindrome_even(int c){int d=pal_radius_even(c);return{c-d,c+d};}
 
-    bool has_period(int l,int r,int p){assert(0<=l&&l<=r&&r<=size());return p>0&&(p>=r-l||equal(l,r-p,l+p,r));}
+    bool has_period(int l,int r,int p){do { if (!(0<=l&&l<=r&&r<=size())) std::abort(); } while (false);return p>0&&(p>=r-l||equal(l,r-p,l+p,r));}
     bool is_repeat(int l,int r,int p){return p>0&&(r-l)%p==0&&has_period(l,r,p);}
 
     Hash after_erase(int l,int r){return concat(prod(0,l),prod(r,size()));}
@@ -170,6 +169,14 @@ public:
 };
 
 /*
+細かい注意点
+0-indexed、区間は[l,r)。MOD=2^61-1、2本のbaseとsaltを実行時に乱択する。
+ハッシュ一致による判定には衝突の可能性がある。getは格納した整数値を返す。
+回文半径dは奇数中心なら[c-d,c+d+1)、偶数中心なら[c-d,c+d)。
+Treapのpriorityも乱択。計算量は期待値。cut_and_pasteのposは切り取り後の位置。
+swap_rangesはr1<=l2の非交差区間。木本体の浅いコピーはしない。
+
+使える関数一覧
 DynamicRollingHash rh(s) string sで構築 O(N)
 DynamicRollingHash rh(a) vector<T> aで構築 O(N)
 int rh.size() 現在の列長を返す O(1)
@@ -239,5 +246,11 @@ Hash rh.after_reverse(l,r) [l,r)反転後の仮想Hashを返す 期待O(logN)
 vector<ll> rh.to_vector() 現在の列をvector<ll>で返す O(N)
 string rh.to_string_chars() 各値をcharとしてstringで返す O(N)
 
-区間はすべて[l,r)、MOD=2^61-1、base2本+salt2本+Treap priorityを実行時ランダム生成
+基本の関数
+DynamicRollingHash rh(string("abacaba"));
+auto hash = rh.prod(0,3);                    // abaの双方向二重Hash
+auto equal = rh.equal(0,3,4,7);               // true
+auto palindrome = rh.is_palindrome(0,7);     // true
+rh.set(0,'z');                               // 点更新
+rh.reverse(0,7);                              // 区間反転
 */

@@ -1,5 +1,3 @@
-//AhoCorasick
-
 template<int SIGMA = 26, char BASE = 'a'>
 struct AhoCorasick {
     struct Node {
@@ -29,14 +27,14 @@ struct AhoCorasick {
     int char_id(char c) const {
         int x = c - BASE;
 
-        assert(0 <= x && x < SIGMA);
+        do { if (!(0 <= x && x < SIGMA)) std::abort(); } while (false);
 
         return x;
     }
 
     int add(const string& s) {
-        assert(!built);
-        assert(!s.empty());
+        do { if (!(!built)) std::abort(); } while (false);
+        do { if (!(!s.empty())) std::abort(); } while (false);
 
         int v = 0;
 
@@ -60,7 +58,7 @@ struct AhoCorasick {
     }
 
     void build() {
-        assert(!built);
+        do { if (!(!built)) std::abort(); } while (false);
 
         built = true;
 
@@ -118,14 +116,14 @@ struct AhoCorasick {
     }
 
     int transition(int state, char c) const {
-        assert(built);
-        assert(0 <= state && state < (int)nodes.size());
+        do { if (!(built)) std::abort(); } while (false);
+        do { if (!(0 <= state && state < (int)nodes.size())) std::abort(); } while (false);
 
         return nodes[state].next[char_id(c)];
     }
 
     long long count_all(const string& s) const {
-        assert(built);
+        do { if (!(built)) std::abort(); } while (false);
 
         long long result = 0;
         int state = 0;
@@ -142,7 +140,7 @@ struct AhoCorasick {
     vector<long long> count_each(
         const string& s
     ) const {
-        assert(built);
+        do { if (!(built)) std::abort(); } while (false);
 
         vector<long long> count(nodes.size(), 0);
 
@@ -194,8 +192,12 @@ struct AhoCorasick {
 };
 
 /*
-デフォルトは英小文字 a-z
+細かい注意点
+既定は英小文字a-z。全パターンをaddしてからbuildする。build後の追加は不可。
+空文字列は登録不可。同じ文字列の重複登録・重なりのある出現も別々に数える。
+入力文字はテンプレートの文字集合に含まれること。cnt[id]はaddが返したIDで参照する。
 
+使える関数一覧
 AhoCorasick<> ac;                              // a-z 用で初期化
 
 int id = ac.add(s);                            // パターン s を追加しパターン番号を返す O(|s|)
@@ -218,8 +220,11 @@ state = ac.transition(state,c);                // 文字 c を1文字読んだ�
 ac.size();                                     // Trie / Automaton のノード数 O(1)
 ac.pattern_count();                            // 登録したパターン数 O(1)
 
-※ add() は build() より前に全て行う
-※ build() 後に add() はできない
-※ 空文字列は登録不可
-※ 同じ文字列を複数回 add() してもよい
+基本の関数
+AhoCorasick<> ac;
+int id = ac.add("aba");
+ac.add("ba");
+ac.build();
+auto counts = ac.count_each("ababa");        // counts[id]==2
+auto total = ac.count_all("ababa");          // 4
 */

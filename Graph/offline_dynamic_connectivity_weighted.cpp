@@ -1,4 +1,3 @@
-//削除可能なオフラインUnionFind
 struct UnionFindUndo {
     vector<int> data;
     vector<long long> ws, sum;
@@ -46,7 +45,7 @@ struct OfflineDynamicConnectivity {
     map<edge, int> cnt, appear;
     vector<long long> cur_ws;
     vector<int> ws_appear;
-    OfflineDynamicConnectivity(int V, int Q, const vector<long long>& initial_ws) 
+    OfflineDynamicConnectivity(int V, int Q, const vector<long long>& initial_ws)
         : uf(V, initial_ws), V(V), Q(Q) {
         segsz = 1; while(segsz < Q) segsz <<= 1;
         seg.resize(2 * segsz - 1); seg_ws.resize(2 * segsz - 1);
@@ -91,13 +90,28 @@ struct OfflineDynamicConnectivity {
 };
 
 /*
-vl val(n,0)//最初の頂点の重み
-OfflineDynamicConnectivity odc(n, q, val);
-odc.insert(t,u,v) 時刻tに辺u-vをマージ
-odc.erase(t,u,v)  時刻tに辺u-vを削除
-odc.update_weight(t,u,w) 時刻tに頂点uの重さをwに変更
-odc.uf.component_sum(u)　時刻tに頂点uを含む連結成分の重さの合計
-odc.build()　　　 クエリを処理
-odc.run([&](int t) {
-        // 現在時刻 t で、調べたいクエリがあれば処理});
+細かい注意点
+0-indexed、無向グラフ。時刻は0..Q-1、初期重み配列はN要素。
+辺の追加・削除と重み代入を登録し、build後にrunで各時刻の回答を取る。
+同じ辺の重複登録は避ける。成分和と重みの差分がlong longに収まること。
+連結判定のみのOfflineDynamicConnectivityと同名クラスなので同時に貼らない。
+
+使える関数一覧
+OfflineDynamicConnectivity dc(N,Q,initial_weights); // 初期化
+dc.insert(t,u,v);                  // void: 辺の追加を登録
+dc.erase(t,u,v);                   // void: 辺の削除を登録
+dc.update_weight(t,u,x);           // void: 頂点重みの代入を登録
+dc.build();                       // void: 有効期間を時間セグ木へ登録
+dc.run(callback);                 // void: 各時刻tでcallback(t)を呼ぶ
+dc.uf.find(u);                    // int: 現在時刻の代表元 O(log N)
+dc.uf.component_sum(u);           // ll: 現在時刻の連結成分和 O(log N)
+
+基本の関数
+OfflineDynamicConnectivity dc(3,3,vl{1,2,4});
+dc.insert(0,0,1);
+dc.update_weight(1,1,10);
+dc.erase(2,0,1);
+dc.build();
+vl answers(3);
+dc.run([&](int t){answers[t]=dc.uf.component_sum(0);}); // {3,11,1}
 */

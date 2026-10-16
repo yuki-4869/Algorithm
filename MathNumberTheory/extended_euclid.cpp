@@ -22,7 +22,7 @@ pair<ll,ll> bezout(ll a,ll b){
 }
 
 optional<ll> inverse(ll a,ll mod){
-    assert(mod>0);
+    do { if (!(mod>0)) std::abort(); } while (false);
     auto [g,x,y]=extgcd(a,mod);
     if(g!=1) return nullopt;
     x%=mod;
@@ -33,7 +33,7 @@ optional<ll> inverse(ll a,ll mod){
 struct Diophantine { ll x,y,dx,dy,g; };
 
 optional<Diophantine> solve(ll a,ll b,ll c){
-    assert(a!=0||b!=0);
+    do { if (!(a!=0||b!=0)) std::abort(); } while (false);
     auto [g,x,y]=extgcd(a,b);
     if(c%g) return nullopt;
     i128 k=c/g;
@@ -43,7 +43,7 @@ optional<Diophantine> solve(ll a,ll b,ll c){
 struct Congruence { ll x,mod; };
 
 optional<Congruence> congruence(ll a,ll b,ll mod){
-    assert(mod>0);
+    do { if (!(mod>0)) std::abort(); } while (false);
     auto [g,x,y]=extgcd(a,mod);
     if(b%g) return nullopt;
     ll m=mod/g;
@@ -62,8 +62,14 @@ optional<ll> divide_mod(ll a,ll b,ll mod){
 }
 
 /*
-拡張ユークリッドの互除法
+細かい注意点
+ax+by=gcd(a,b)の係数を求める。返すgは非負。
+inverse/divide_mod/congruenceのmodは正。solveはa,bの少なくとも一方が非0。
+逆元はgcd(a,mod)=1のときだけ存在。ax+by=cはgcd(a,b)がcを割るときだけ可解。
+解・係数・gcdはlong longに収まること。解なしはnulloptで返す。
+solveの全解はx=s.x+s.dx*t、y=s.y+s.dy*t。congruenceはx≡s.x (mod s.mod)。
 
+使える関数一覧
 auto [g,x,y]=ext_euclid::extgcd(a,b);          // ax+by=gcd(a,b), g>=0
 auto [x,y]=ext_euclid::bezout(a,b);             // Bézout係数のみ
 
@@ -77,7 +83,8 @@ auto s=ext_euclid::solve(a,b,c);                // ax+by=c、解なしなら nul
 auto s=ext_euclid::congruence(a,b,m);           // ax≡b (mod m)、解なしなら nullopt
                                                 // x≡s->x (mod s->mod)
 
-※ solve() は a,b の少なくとも一方が非0
-※ inverse(a,m) が存在 ⇔ gcd(a,m)=1
-※ ax+by=c が解を持つ ⇔ gcd(a,b) | c
+基本の関数
+auto result = ext_euclid::extgcd(30,18);       // g=6, 30*x+18*y=6
+auto inverse = ext_euclid::inverse(3,7);      // 5
+auto solution = ext_euclid::solve(6,9,3);     // 6x+9y=3の解
 */

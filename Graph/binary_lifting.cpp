@@ -30,19 +30,21 @@ struct BinaryLifting{
 };
 
 /*
-pair<ll,T> query(v,k) k回移動後の頂点と途中の集約値を返す O(logk)
-ll jump(v,k) vからk回移動した頂点を返す O(logk)
-T prod(v,k) vからk回分の値をopで集約して返す O(logk)
+細かい注意点
+0-indexed。to[v]は1回移動先、cost[v]はその移動の集約値。同じ長さの配列を渡す。
+全移動先は0..N-1。opは結合則を満たし、eは単位元。非可換な演算にも対応。
+kはunsigned long long。64段を固定で走査するため、構築O(64N)、各照会O(64)。
 
+使える関数一覧
+BinaryLifting<T> db(to,cost,e,op); // 構築 O(64N)
+db.query(v,k);                    // pair<ll,T>: k回後の頂点と集約値 O(64)
+db.jump(v,k);                     // ll: k回後の頂点 O(64)
+db.prod(v,k);                     // T: k回分の集約値 O(64)
+
+基本の関数
+vl to={1,2,0}, cost={2,3,5};
 BinaryLifting<ll> db(to,cost,0LL,[](ll a,ll b){return a+b;});
-auto [v,sum]=db.query(s,k);
-ll v=db.jump(s,k);
-ll sum=db.prod(s,k);
-
-to[v] vから1回移動した頂点
-cost[v] vから1回移動するときに集約する値
-e opの単位元
-opは結合則を満たす演算を指定
-sum/min/max/gcdなどに対応
-初期構築 O(NlogK)
+auto [vertex,sum] = db.query(0,4);            // vertex=1, sum=12
+auto next = db.jump(0,2);                     // 2
+auto value = db.prod(0,2);                    // 5
 */

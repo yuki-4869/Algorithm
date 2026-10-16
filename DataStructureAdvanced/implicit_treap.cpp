@@ -86,7 +86,6 @@ struct ImplicitTreap {
         }
     }
 
-    // split(t, k) = [0, k), [k, n)
     pair<Node*, Node*> split(Node* t, int k) {
         if (!t) return {nullptr, nullptr};
 
@@ -122,7 +121,6 @@ struct ImplicitTreap {
         auto [a, b] = split(root, pos);
         auto [c, d] = split(b, 1);
         root = merge(a, d);
-        // c は削除対象。競プロでは delete しなくてもだいたい問題ない。
     }
 
     ll get(int pos) {
@@ -195,35 +193,32 @@ struct ImplicitTreap {
         }
     }
 };
-/*
-insert(pos, x)
-erase(pos)
-get(pos)
-set_val(pos, x)
-range_add(l, r, x)
-range_reverse(l, r)
-range_sum(l, r)
-to_vector()
-bulid(v)
-*/
 
 /*
+細かい注意点
+列の添字は0-indexed、区間は[l,r)。挿入は0<=pos<=size()、取得・削除は0<=pos<size()。
+各操作は乱択木による期待計算量。和・加算はlong longに収まること。
+ノードを共有する浅いコピーをしない。削除・再構築時に古いノードを解放しない実装。
+メモリ使用量は現在長だけでなく、これまでに確保したノード数に依存する。
 
-    ImplicitTreap tr;
+使える関数一覧
+tr.build(v);             // void: 列vから構築 期待O(N log N)
+tr.size();               // int: 列長 O(1)
+tr.insert(pos,x);        // void: pos直前に挿入 期待O(log N)
+tr.push_back(x);         // void: 末尾に挿入 期待O(log N)
+tr.erase(pos);           // void: posの要素を削除 期待O(log N)
+tr.get(pos);             // ll: posの値 期待O(log N)
+tr.set_val(pos,x);       // void: posの値を変更 期待O(log N)
+tr.range_add(l,r,x);     // void: 区間加算 期待O(log N)
+tr.range_reverse(l,r);   // void: 区間反転 期待O(log N)
+tr.range_sum(l,r);       // ll: 区間和 期待O(log N)
+tr.to_vector();          // vector<ll>: 現在の列 O(N)
 
-    tr.build({1, 2, 3, 4, 5});
-
-    cout << tr.size() << '\n'; // 5
-
-    tr.insert(2, 100);
-
-    cout << tr.size() << '\n'; // 6
-
-    tr.erase(4);
-
-    cout << tr.size() << '\n'; // 5
-
-    auto v = tr.to_vector();
-    for (ll x : v) cout << x << ' ';
-    cout << '\n';
+基本の関数
+ImplicitTreap tr;
+tr.build({1,2,3});
+tr.insert(1,10);                              // {1,10,2,3}
+tr.range_add(0,2,5);                          // {6,15,2,3}
+auto sum = tr.range_sum(0,4);                 // 26
+tr.erase(1);                                  // {6,2,3}
 */

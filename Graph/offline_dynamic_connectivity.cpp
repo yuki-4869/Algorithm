@@ -1,11 +1,11 @@
 struct OfflineDynamicConnectivity{
     struct RUF{
-        vector<ll> p,sz;
+        vector<ll> parent_,sz;
         vector<pair<ll,ll>> hist;
 
-        RUF(ll n):p(n),sz(n,1){iota(p.begin(),p.end(),0);}
+        RUF(ll n):parent_(n),sz(n,1){iota(parent_.begin(),parent_.end(),0);}
 
-        ll root(ll x){while(x!=p[x])x=p[x];return x;}
+        ll root(ll x){while(x!=parent_[x])x=parent_[x];return x;}
         bool same(ll a,ll b){return root(a)==root(b);}
 
         void unite(ll a,ll b){
@@ -13,7 +13,7 @@ struct OfflineDynamicConnectivity{
             if(a==b)return;
             if(sz[a]<sz[b])swap(a,b);
             hist.push_back({b,sz[a]});
-            p[b]=a;sz[a]+=sz[b];
+            parent_[b]=a;sz[a]+=sz[b];
         }
 
         ll snapshot(){return hist.size();}
@@ -21,7 +21,7 @@ struct OfflineDynamicConnectivity{
         void rollback(ll s){
             while(hist.size()>s){
                 auto [b,old]=hist.back();hist.pop_back();
-                ll a=p[b];sz[a]=old;p[b]=b;
+                ll a=parent_[b];sz[a]=old;parent_[b]=b;
             }
         }
     };
@@ -86,21 +86,23 @@ struct OfflineDynamicConnectivity{
 };
 
 /*
-void add(t,u,v) 時刻tから辺(u,v)を追加 O(1)
-void erase(t,u,v) 時刻tで辺(u,v)を削除 O(logT)
-ll query(t,u,v) 時刻tでu,vが連結か調べるクエリを追加しIDを返す O(1)
-vl solve() 全queryの連結判定をID順に返す O((Q+M)logQlogN)
+細かい注意点
+0-indexed、無向グラフ。時刻は0..T-1。
+同じ辺をaddからeraseの間に再addしない。eraseされなかった辺はTまで有効。
+全操作を登録してからsolveする。queryの返すIDで答え配列を参照する。
+内部はRollback UnionFindと時間セグ木。
 
-OfflineDynamicConnectivity dc(n,T);
-dc.add(0,u,v);
-ll id=dc.query(1,a,b);
-dc.erase(2,u,v);
-auto ans=dc.solve();
-bool connected=ans[id];
+使える関数一覧
+OfflineDynamicConnectivity dc(N,T); // 構築 O(N+T)
+dc.add(t,u,v);                     // void: 時刻tから辺を追加
+dc.erase(t,u,v);                   // void: 時刻tで辺を削除
+dc.query(t,u,v);                   // ll: 連結判定を登録しIDを返す
+dc.solve();                        // vector<ll>: ID順の0/1回答 O((T+Q log T)log N)
 
-同じ辺はaddしてからeraseするまで再addしない前提
-eraseされなかった辺はTまで存在するとして処理
-queryの返り値IDでsolve()の答えを参照する
-内部でRollback UnionFind+時間セグ木を使用
-無向グラフ用
+基本の関数
+OfflineDynamicConnectivity dc(3,3);
+dc.add(0,0,1);
+auto id = dc.query(1,0,1);
+dc.erase(2,0,1);
+auto answers = dc.solve();                   // answers[id]==1
 */

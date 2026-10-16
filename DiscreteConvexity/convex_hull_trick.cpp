@@ -1,5 +1,3 @@
-//ConvexHullTrick
-
 template<class T = long long, bool MINIMIZE = true>
 struct ConvexHullTrick {
     static_assert(is_integral_v<T> && sizeof(T) <= 8);
@@ -48,7 +46,7 @@ struct ConvexHullTrick {
         Line line = normalize(a, b);
 
         if (!lines.empty()) {
-            assert(lines.back().a >= line.a);
+            do { if (!(lines.back().a >= line.a)) std::abort(); } while (false);
         }
 
         if (!lines.empty() && lines.back().a == line.a) {
@@ -74,7 +72,7 @@ struct ConvexHullTrick {
     }
 
     T query(T x) const {
-        assert(!lines.empty());
+        do { if (!(!lines.empty())) std::abort(); } while (false);
 
         int left = 0;
         int right = (int)lines.size() - 1;
@@ -112,8 +110,13 @@ struct ConvexHullTrick {
 };
 
 /*
-整数係数・整数 x 用
+細かい注意点
+整数係数・整数x用。最小値版は傾き降順、最大値版(false)は傾き昇順で追加する。
+同じ傾きは最小値版なら最小切片、最大値版なら最大切片だけを残す。
+非空でqueryを呼ぶ。a*x+bはTの範囲内。内部比較は__int128。
+xの照会順序は任意。
 
+使える関数一覧
 ConvexHullTrick<ll> cht;                       // 最小値を管理
 ConvexHullTrick<ll,false> cht;                 // 最大値を管理
 
@@ -124,20 +127,9 @@ cht.size();                                    // 現在保持している有効
 cht.empty();                                   // 直線が0本なら true O(1)
 cht.clear();                                   // 全直線を削除 O(N)
 
-最小値版:
-    傾き a を単調減少で追加する必要がある
-    a1 >= a2 >= a3 >= ...
-
-最大値版:
-    傾き a を単調増加で追加する必要がある
-    a1 <= a2 <= a3 <= ...
-
-query(x) の x は好きな順番でよい
-
-同じ傾きの直線を追加した場合、
-最小値版では切片が小さい方、
-最大値版では切片が大きい方だけを残す
-
-※ a*x+b の最終結果が T の範囲内に収まる必要がある
-※ 内部の比較には __int128 を使用
+基本の関数
+ConvexHullTrick<ll> cht;
+cht.add_line(2,0);
+cht.add_line(-1,3);
+auto value = cht.query(2);                    // 1 O(log N)
 */

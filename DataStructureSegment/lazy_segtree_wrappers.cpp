@@ -1,21 +1,10 @@
-// ACL遅延セグ木の用途別ラッパー。0-indexed / 半開区間[l,r)。
-// Source: https://github.com/yuki-4869/Algorithm/blob/main/DataStructureSegment/lazy_segtree_wrappers.cpp
-#include <algorithm>
-#include <atcoder/lazysegtree>
-#include <atcoder/modint>
-#include <cstddef>
-#include <limits>
-#include <stdexcept>
-#include <utility>
-#include <vector>
-
 namespace lazy_wrapper_detail {
     inline int checked_size(std::size_t n) {
-        if(n>(1u<<29)) throw std::length_error("LazySegBase: too many elements");
+        if(n>(1u<<29)) std::abort();
         return static_cast<int>(n);
     }
     inline int checked_n(int n) {
-        if(n<0) throw std::invalid_argument("LazySegBase: negative size");
+        if(n<0) std::abort();
         return checked_size(static_cast<std::size_t>(n));
     }
     inline std::vector<long long> zeros(int n) {
@@ -31,10 +20,10 @@ class LazySegBase : private atcoder::lazy_segtree<S,op,e,F,mp,cp,id> {
         lazy_wrapper_detail::checked_size(a.size()); return a;
     }
     void check_point(int p) const {
-        if(p<0 || p>=n_) throw std::out_of_range("LazySegBase: index out of range");
+        if(p<0 || p>=n_) std::abort();
     }
     void check_range(int l,int r) const {
-        if(l<0 || l>r || r>n_) throw std::out_of_range("LazySegBase: invalid half-open range");
+        if(l<0 || l>r || r>n_) std::abort();
     }
 public:
     LazySegBase()=default;
@@ -59,13 +48,13 @@ public:
     template<bool(*g)(S)> int max_right(int l){return max_right(l,g);}
     template<class G> int max_right(int l,G g){
         check_range(l,l);
-        if(!g(e()))throw std::invalid_argument("LazySegBase: predicate must accept identity");
+        if(!g(e()))std::abort();
         return l==n_?n_:Tree::max_right(l,std::move(g));
     }
     template<bool(*g)(S)> int min_left(int r){return min_left(r,g);}
     template<class G> int min_left(int r,G g){
         check_range(r,r);
-        if(!g(e()))throw std::invalid_argument("LazySegBase: predicate must accept identity");
+        if(!g(e()))std::abort();
         return r==0?0:Tree::min_left(r,std::move(g));
     }
 };
@@ -73,8 +62,6 @@ public:
 struct LazyAssignF{long long x=0;bool set=false;};
 constexpr long long LSEG_INF=(1LL<<62);
 
-
-// add + min
 namespace LazyAddMin_impl{
     long long op(long long a,long long b){return std::min(a,b);}
     long long e(){return LSEG_INF;}
@@ -89,11 +76,8 @@ struct LazyAddMin:LazySegBase<long long,LazyAddMin_impl::op,LazyAddMin_impl::e,l
     LazyAddMin()=default;
     void add(int l,int r,long long x){B::apply(l,r,x);}
     long long min(int l,int r){return B::prod(l,r);}
-
 };
 
-
-// add + max
 namespace LazyAddMax_impl{
     long long op(long long a,long long b){return std::max(a,b);}
     long long e(){return -LSEG_INF;}
@@ -108,11 +92,8 @@ struct LazyAddMax:LazySegBase<long long,LazyAddMax_impl::op,LazyAddMax_impl::e,l
     LazyAddMax()=default;
     void add(int l,int r,long long x){B::apply(l,r,x);}
     long long max(int l,int r){return B::prod(l,r);}
-
 };
 
-
-// sum common
 namespace LazySum_impl{
     struct S{long long val,size;};
     S op(S a,S b){return {a.val+b.val,a.size+b.size};}
@@ -120,8 +101,6 @@ namespace LazySum_impl{
     std::vector<S> cv(const std::vector<long long>&a){std::vector<S>v;for(long long x:a)v.push_back({x,1});return v;}
 }
 
-
-// add + sum
 namespace LazyAddSum_impl{
     using S=LazySum_impl::S;
     S mp(long long f,S x){return {x.val+f*x.size,x.size};}
@@ -139,11 +118,8 @@ struct LazyAddSum:LazySegBase<LazySum_impl::S,LazySum_impl::op,LazySum_impl::e,l
     LazyAddSum()=default;
     using B::apply;
     void add(int l,int r,long long x){B::apply(l,r,x);}
-
 };
 
-
-// assign + min
 namespace LazyAssignMin_impl{
     long long op(long long a,long long b){return std::min(a,b);}
     long long e(){return LSEG_INF;}
@@ -160,11 +136,8 @@ struct LazyAssignMin:LazySegBase<long long,LazyAssignMin_impl::op,LazyAssignMin_
     void apply(int i,long long x){B::apply(i,LazyAssignF{x,true});}
     void assign(int l,int r,long long x){apply(l,r,x);}
     long long min(int l,int r){return B::prod(l,r);}
-
 };
 
-
-// assign + max
 namespace LazyAssignMax_impl{
     long long op(long long a,long long b){return std::max(a,b);}
     long long e(){return -LSEG_INF;}
@@ -181,11 +154,8 @@ struct LazyAssignMax:LazySegBase<long long,LazyAssignMax_impl::op,LazyAssignMax_
     void apply(int i,long long x){B::apply(i,LazyAssignF{x,true});}
     void assign(int l,int r,long long x){apply(l,r,x);}
     long long max(int l,int r){return B::prod(l,r);}
-
 };
 
-
-// assign + sum
 namespace LazyAssignSum_impl{
     using S=LazySum_impl::S;
     S mp(LazyAssignF f,S x){return f.set?S{f.x*x.size,x.size}:x;}
@@ -204,11 +174,8 @@ struct LazyAssignSum:LazySegBase<LazySum_impl::S,LazySum_impl::op,LazySum_impl::
     LazyAssignSum()=default;
     void apply(int i,long long x){B::apply(i,LazyAssignF{x,true});}
     void assign(int l,int r,long long x){apply(l,r,x);}
-
 };
 
-
-// minmax common
 namespace LazyMinMax_impl{
     struct S{long long mx,mn;};
     S op(S a,S b){return {std::max(a.mx,b.mx),std::min(a.mn,b.mn)};}
@@ -216,8 +183,6 @@ namespace LazyMinMax_impl{
     std::vector<S> cv(const std::vector<long long>&a){std::vector<S>v;for(long long x:a)v.push_back({x,x});return v;}
 }
 
-
-// add + minmax
 namespace LazyAddMinMax_impl{
     using S=LazyMinMax_impl::S;
     S mp(long long f,S x){return x.mn==LSEG_INF?x:S{x.mx+f,x.mn+f};}
@@ -236,11 +201,8 @@ struct LazyAddMinMax:LazySegBase<LazyMinMax_impl::S,LazyMinMax_impl::op,LazyMinM
     void add(int l,int r,long long x){B::apply(l,r,x);}
     long long min(int l,int r){return B::prod(l,r).mn;}
     long long max(int l,int r){return B::prod(l,r).mx;}
-
 };
 
-
-// assign + minmax
 namespace LazyAssignMinMax_impl{
     using S=LazyMinMax_impl::S;
     S mp(LazyAssignF f,S x){return x.mn==LSEG_INF?x:(f.set?S{f.x,f.x}:x);}
@@ -260,11 +222,8 @@ struct LazyAssignMinMax:LazySegBase<LazyMinMax_impl::S,LazyMinMax_impl::op,LazyM
     void assign(int l,int r,long long x){apply(l,r,x);}
     long long min(int l,int r){return B::prod(l,r).mn;}
     long long max(int l,int r){return B::prod(l,r).mx;}
-
 };
 
-
-// add + argmax
 namespace LazyAddArgMax_impl{
     struct S{long long val,id;};
     S op(S a,S b){return a.val!=b.val?(a.val>b.val?a:b):(a.id<b.id?a:b);}
@@ -284,11 +243,8 @@ struct LazyAddArgMax:LazySegBase<LazyAddArgMax_impl::S,LazyAddArgMax_impl::op,La
     using B::apply;
     using B::set;
     void add(int l,int r,long long x){B::apply(l,r,x);}
-
 };
 
-
-// add + argmin
 namespace LazyAddArgMin_impl{
     struct S{long long val,id;};
     S op(S a,S b){return a.val!=b.val?(a.val<b.val?a:b):(a.id<b.id?a:b);}
@@ -308,11 +264,8 @@ struct LazyAddArgMin:LazySegBase<LazyAddArgMin_impl::S,LazyAddArgMin_impl::op,La
     using B::apply;
     using B::set;
     void add(int l,int r,long long x){B::apply(l,r,x);}
-
 };
 
-
-// chmin + max
 namespace LazyChminMax_impl{
     long long op(long long a,long long b){return std::max(a,b);}
     long long e(){return -LSEG_INF;}
@@ -327,11 +280,8 @@ struct LazyChminMax:LazySegBase<long long,LazyChminMax_impl::op,LazyChminMax_imp
     LazyChminMax()=default;
     long long max(int l,int r){return B::prod(l,r);}
     void chmin(int l,int r,long long x){B::apply(l,r,x);}
-
 };
 
-
-// chmax + min
 namespace LazyChmaxMin_impl{
     long long op(long long a,long long b){return std::min(a,b);}
     long long e(){return LSEG_INF;}
@@ -346,11 +296,8 @@ struct LazyChmaxMin:LazySegBase<long long,LazyChmaxMin_impl::op,LazyChmaxMin_imp
     LazyChmaxMin()=default;
     long long min(int l,int r){return B::prod(l,r);}
     void chmax(int l,int r,long long x){B::apply(l,r,x);}
-
 };
 
-
-// long long affine + sum/min/max
 namespace LazyAffineStats_impl{
     struct S{long long sum,mx,mn,size;};
     struct F{long long a=1,b=0;};
@@ -398,11 +345,8 @@ struct LazyAffineStats:LazySegBase<LazyAffineStats_impl::S,LazyAffineStats_impl:
     using B::apply;
 
     using B::set;
-
 };
 
-
-// modint affine + sum (default: 998244353)
 template<class Mint>
 struct LazyAffineSumOps {
     struct S{Mint val;long long size;};
@@ -447,7 +391,6 @@ namespace LazyAffineSum_impl {
     inline F id(){return Ops::id();}
 }
 
-// flip + ones
 namespace LazyFlipSum_impl{
     struct S{long long one,size;};
     S op(S a,S b){return {a.one+b.one,a.size+b.size};}
@@ -472,11 +415,8 @@ struct LazyFlipSum:LazySegBase<LazyFlipSum_impl::S,LazyFlipSum_impl::op,LazyFlip
     using B::apply;
 
     using B::set;
-
 };
 
-
-// flip + inversion
 namespace LazyFlipInv_impl{
     struct S{long long zero,one,inv;};
 
@@ -515,11 +455,8 @@ struct LazyFlipInv:LazySegBase<LazyFlipInv_impl::S,LazyFlipInv_impl::op,LazyFlip
     using B::apply;
 
     using B::set;
-
 };
 
-
-// arithmetic progression add + sum
 namespace LazyAPAddSum_impl{
     struct S{long long sum,size,idxsum;};
     struct F{long long a=0,b=0;};
@@ -553,17 +490,24 @@ struct LazyAPAddSum:LazySegBase<LazyAPAddSum_impl::S,LazyAPAddSum_impl::op,LazyA
     using B::apply;
 
     using B::set;
-
 };
 
 /*
-ACL遅延セグ木ラッパー 公開API一覧（0-indexed / 半開区間[l,r)）
+細かい注意点
+0-indexed、区間は[l,r)。0<=i<N、0<=l<=r<=N。N<=2^29。
+Sは集約型、Fは更新型。get/prodは整数値そのものではなくSを返す型もある。
+区間和・遅延タグ・中間演算はlong longに収まること。
+最小・最大・位置付き型の実要素は-LSEG_INFより大きくLSEG_INFより小さく保つ。
+空区間のprodは単位元、applyは何もしない。minはLSEG_INF、maxは-LSEG_INF、和は0。
+Arg型の空区間のidはLSEG_INF、Sum/Stats/AP型のsizeは0。
+max_right/min_leftの述語は副作用なし・単調・g(e())==true。
+写像の合成cp(f,g)はgの後にf。代入写像はLazyAssignF{x,true}、{}は何もしない。
+具体型の(n)は0初期化、汎用LazySegBase(n)は単位元で初期化する。
+Flip型は初期値とset値を0/非0から0/1へ正規化する。
+範囲外や負の長さ、不正な述語など検出した前提違反はメッセージなしで停止。
+保持メモリO(N)。codecfではatcoder/lazysegtreeを追加で読み込む。
 
-N = 配列長、i = 点位置。0<=i<N、0<=l<=r<=N。
-S = 下表の集約型、F = 更新型。Type = 下表のいずれかのクラス。
-全操作の中間演算・区間和・遅延タグがlong longに収まること。
-最小・最大・位置付き型では実要素を-LSEG_INFより大きくLSEG_INFより小さく保つ。
-
+使える関数一覧
 // 型の選択（Type seg(n) / Type seg(v)の構築はO(N)、seg(n)は0初期化）
 LazyAddMin seg(v);                             // 区間加算 + 最小値。S=long long、F=加算値
 LazyAddMax seg(v);                             // 区間加算 + 最大値。S=long long、F=加算値
@@ -644,14 +588,10 @@ LazyFlipSum::cv(v);                            // vector<S>: {0/1の値,1}へ変
 LazyFlipInv::cv(v);                            // vector<S>: {zero,one,0}へ変換 O(N)
 LazyAPAddSum::cv(v);                           // vector<S>: {値,1,元の添字}へ変換 O(N)
 
-// 単位元・例外・計算量
-// prod(l,l)は型の単位元、apply(l,l,f)は何もしない（いずれもO(1)）。
-// 空区間の最小値はLSEG_INF、最大値は-LSEG_INF、和・1個数・転倒数は0。
-// Arg型の空区間のidはLSEG_INF。Sum/Stats/AP型の空区間のsizeは0。
-// 範囲外はout_of_range、負の長さはinvalid_argument（NDEBUGでも検出）。
-// gは副作用なし・単調で、g(単位元)==true。違反が判定できる後者はinvalid_argument。
-// composition(f,g)はgの後にfを適用。タグ・内部型を直接使う場合はこの順序を守る。
-// LazySegBaseの汎用コンストラクタ(n)は単位元をn個並べる。具体型の(n)は0の実要素をn個作る。
-// N<=2^29。より大きな長さはlength_error。メモリはO(N)、デストラクタでの解放はO(N)。
-// *_implやOpsの演算は内部実装用。整数演算のオーバーフロー自体を一律検出する実装ではない。
+基本の関数
+LazyAddSum seg(vector<ll>{1,2,3});             // 構築 O(N)
+seg.apply(0,2,5);                             // [0,2)へ5加算 O(log N)
+auto result = seg.prod(0,3);                  // S={val=16,size=3} O(log N)
+seg.set(1,10);                                // 点代入 O(log N)
+auto value = seg.get(1);                      // S={val=10,size=1} O(log N)
 */

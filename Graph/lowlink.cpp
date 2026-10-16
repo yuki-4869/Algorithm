@@ -1,5 +1,3 @@
-//LowLink
-
 struct LowLink {
     int n;
     vector<pair<int, int>> edges;
@@ -29,8 +27,8 @@ struct LowLink {
           graph(n) {}
 
     int add_edge(int a, int b) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         int id = edges.size();
 
@@ -160,22 +158,25 @@ struct LowLink {
     }
 
     bool is_articulation(int v) const {
-        assert(0 <= v && v < n);
+        do { if (!(0 <= v && v < n)) std::abort(); } while (false);
 
         return articulation[v];
     }
 
     bool is_bridge(int id) const {
-        assert(0 <= id && id < (int)edges.size());
+        do { if (!(0 <= id && id < (int)edges.size())) std::abort(); } while (false);
 
         return bridge[id];
     }
 };
 
 /*
-0-indexed
-非連結グラフ・多重辺・自己ループ対応
+細かい注意点
+0-indexed、無向グラフ。非連結・多重辺・自己ループ対応。
+全辺をadd_edgeしてからbuildし、その後に結果を参照する。
+頂点番号と辺番号を混同しない。橋の判定はadd_edgeの返す辺番号を使う。
 
+使える関数一覧
 LowLink lowlink(N);                            // N 頂点で初期化 O(N)
 
 int id = lowlink.add_edge(a,b);                // 無向辺 a-b を追加し辺番号を返す O(1)
@@ -201,4 +202,12 @@ lowlink.dfs_edges;                             // 全ての DFS 木の辺 {親,�
 lowlink.dfs_edge_ids;                          // 全ての DFS 木の辺番号を vl で取得
 
 lowlink.edges[id];                             // 辺 id の両端 {a,b} O(1)
+
+基本の関数
+LowLink lowlink(3);
+int edge = lowlink.add_edge(0,1);
+lowlink.add_edge(1,2);
+lowlink.build();
+auto bridge = lowlink.is_bridge(edge);        // true
+auto articulation = lowlink.is_articulation(1); // true
 */

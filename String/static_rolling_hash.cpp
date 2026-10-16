@@ -1,6 +1,3 @@
-//StaticRollingHash
-
-
 struct StaticRollingHash {
     using ll=long long;
     using ull=unsigned long long;
@@ -251,6 +248,13 @@ public:
 };
 
 /*
+細かい注意点
+0-indexed、区間は[l,r)。MOD=2^61-1、2本のbaseとsaltを実行時に乱択する。
+ハッシュ一致による判定には衝突の可能性がある。getは格納した整数値を返す。
+回文半径dは奇数中心なら[c-d,c+d+1)、偶数中心なら[c-d,c+d)。
+静的列用。構築後の点更新は不可。
+
+使える関数一覧
 StaticRollingHash rh(s) string sで構築 O(N)
 StaticRollingHash rh(a) vector<T> aで構築 O(N)
 int rh.size() 列長を返す O(1)
@@ -294,5 +298,9 @@ Hash rh.after_insert(pos,h) posにh挿入後の仮想Hashを返す O(1)
 Hash rh.after_replace(l,r,h) [l,r)をhに置換後の仮想Hashを返す O(1)
 Hash rh.after_reverse(l,r) [l,r)反転後の仮想Hashを返す O(1)
 
-区間はすべて[l,r)、MOD=2^61-1、base2本+salt2本を実行時ランダム生成
+基本の関数
+StaticRollingHash rh(string("abacaba"));
+auto hash = rh.prod(0,3);                    // abaの双方向二重Hash
+auto equal = rh.equal(0,3,4,7);               // true
+auto palindrome = rh.is_palindrome(0,7);     // true
 */

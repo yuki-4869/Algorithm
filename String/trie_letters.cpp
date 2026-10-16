@@ -64,35 +64,40 @@ struct TrieAzAZ{
 };
 
 /*
-ll id(c)              a-zを0～25、A-Zを26～51に変換 O(1)
-ll insert(s)          sを1個追加、終点ノードを返す O(|s|)
-ll insert(s,f)        各prefixでcnt更新前にf(node,depth,true)を実行 O(|s|)
-bool erase(s)         sを1個削除、なければfalse O(|s|)
-bool erase(s,f)       各prefixでcnt更新前にf(node,depth,false)を実行 O(|s|)
-ll find(s)            sのノード番号、なければ-1 O(|s|)
-ll count(s)           sそのものの登録個数 O(|s|)
-ll prefix_count(s)    sをprefixに持つ文字列数 O(|s|)
-bool contains(s)      sが存在するか O(|s|)
-bool starts_with(s)   sをprefixに持つ文字列が存在するか O(|s|)
-ll go(v,c)            vからcへ進む、なければ作成 O(1)
-ll next(v,c)          vからcへ進む、現在存在しなければ-1 O(1)
-ll walk(s,f)          各prefixでf(node,depth)、辿れた長さを返す O(|s|)
-Node& T[v]            ノードvを取得 O(1)
-ll size()             重複込み登録文字列数 O(1)
-ll node_count()       作成済みノード数 O(1)
-bool empty()          空ならtrue O(1)
-void reserve(n)       ノード領域を予約 O(現在ノード数)
-void clear()          全削除 O(ノード数)
+細かい注意点
+文字集合は英小文字a-zと英大文字A-Z。範囲外の文字は渡さない。重複する文字列を登録できる。
+コールバックf(node,depth,add)は各prefixでcnt更新前に呼ばれる。add=trueが追加、falseが削除。
+depthは1始まり。根にはコールバックを呼ばない。f(node,depth)形式も使える。
+Nodeのcntはprefix個数、endは終端個数、valは利用者が自由に使うlong long。
+ノード番号は0-indexed。vector拡張でNodeへの参照が無効になる場合がある。
+goはノードを作るが文字列の登録数を増やさない。削除後もノード領域は残る。
 
-TrieAzAZ T;
+使える関数一覧
+TrieAzAZ T;                // 空で構築
+T.id(c);                  // ll: 文字を内部番号へ変換 O(1)
+T.insert(s);              // ll: 1個追加し終端ノードを返す O(|s|)
+T.insert(s,f);            // ll: prefixごとにfを実行して追加 O(|s|)
+T.erase(s);               // bool: 1個削除、なければfalse O(|s|)
+T.erase(s,f);             // bool: prefixごとにfを実行して削除 O(|s|)
+T.find(s);                // ll: ノード番号、なければ-1 O(|s|)
+T.count(s);               // ll: sの登録個数 O(|s|)
+T.prefix_count(s);        // ll: sをprefixに持つ登録個数 O(|s|)
+T.contains(s);            // bool: sが登録済みか O(|s|)
+T.starts_with(s);         // bool: sをprefixに持つ文字列があるか O(|s|)
+T.go(v,c);                // ll: 次のノード、なければ作成 O(1)
+T.next(v,c);              // ll: 現在有効な次のノード、なければ-1 O(1)
+T.walk(s,f);              // ll: prefixごとにf(node,depth)、辿れた長さ O(|s|)
+T[v];                    // Node& / const Node&: ノード参照 O(1)
+T.size();                 // ll: 重複込み登録数 O(1)
+T.node_count();           // ll: 確保済みノード数 O(1)
+T.empty();                // bool: 登録数0か O(1)
+T.reserve(n);             // void: ノード容量を確保 O(現在ノード数)
+T.clear();                // void: 全登録を削除 O(ノード数)
 
-auto f=[&](auto& n,ll d,bool add){
-    if(add){
-        // insert、n.cntは追加前
-    }else{
-        // erase、n.cntは削除前
-    }
-};
-T.insert(s,f);
-T.erase(s,f);
+基本の関数
+TrieAzAZ trie;
+trie.insert("AbC");
+auto count = trie.count("AbC");          // 1
+auto prefixes = trie.prefix_count("A");
+trie.erase("AbC");
 */

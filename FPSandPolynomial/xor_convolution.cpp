@@ -18,7 +18,7 @@ class FWHT {
             tie(a, b) = pair{b, a % b};
             tie(x, y) = pair{y, x - (i128)q * y};
         }
-        assert(a == 1);
+        do { if (!(a == 1)) std::abort(); } while (false);
         x %= mod;
         if (x < 0) x += mod;
         return (ll)x;
@@ -28,7 +28,7 @@ public:
     template<class T>
     static void transform(vector<T>& a, bool inverse = false) {
         int n = a.size();
-        assert(pow2(n));
+        do { if (!(pow2(n))) std::abort(); } while (false);
 
         for (int len = 1; len < n; len <<= 1)
             for (int i = 0; i < n; i += len << 1)
@@ -58,7 +58,7 @@ public:
 
     static void transform_mod(vector<ll>& a, ll mod, bool inverse = false) {
         int n = a.size();
-        assert(mod >= 2 && pow2(n));
+        do { if (!(mod >= 2 && pow2(n))) std::abort(); } while (false);
 
         for (auto& x : a) x = (x % mod + mod) % mod;
 
@@ -71,7 +71,7 @@ public:
                 }
 
         if (inverse) {
-            assert(gcd((ll)n, mod) == 1);
+            do { if (!(gcd((ll)n, mod) == 1)) std::abort(); } while (false);
             ll inv = inv_mod(n, mod);
             for (auto& x : a) x = (i128)x * inv % mod;
         }
@@ -81,7 +81,7 @@ public:
         if (a.empty() || b.empty()) return {};
 
         int n = ceil_pow2(max(a.size(), b.size()));
-        assert(gcd((ll)n, mod) == 1);
+        do { if (!(gcd((ll)n, mod) == 1)) std::abort(); } while (false);
 
         a.resize(n); b.resize(n);
         transform_mod(a, mod);
@@ -95,10 +95,13 @@ public:
 };
 
 /*
-XOR畳み込み
-C[k] = Σ_{i xor j = k} A[i]B[j]
-計算量 O(N log N)
+細かい注意点
+C[k]=Σ_{i xor j=k}A[i]B[j]。計算量O(N log N)。
+convolutionはmax(|A|,|B|)以上の最小2冪へ0埋め。transform単体は非空の2冪長を渡す。
+通常版はlong long/double/modintなどに対応。途中計算が型の範囲に収まること。
+mod版の逆変換にはgcd(N,mod)=1が必要。積の中間計算は__int128。
 
+使える関数一覧
 auto C = FWHT::convolution(A,B);                // XOR畳み込み
                                                 // ll, double, modint 等
                                                 // サイズは自動で2冪に拡張
@@ -111,9 +114,7 @@ auto C = FWHT::convolution_mod(A,B,mod);        // mod上でXOR畳み込み
 FWHT::transform_mod(A,mod);                     // mod上のFWHT
 FWHT::transform_mod(A,mod,true);                // mod上の逆FWHT
 
-※ convolution() は max(|A|,|B|) 以上の最小2冪まで0埋め
-※ mod版の逆変換は gcd(N,mod)=1 が必要
-※ mod版の積は __int128 でoverflow対策
-※ 通常の ll 版は途中計算が ll を超えるとoverflow
-※ modint998244353 等は convolution<mint>() でそのまま使用可能
+基本の関数
+auto C = FWHT::convolution<ll>({1,2},{3,4});   // {11,10}
+auto D = FWHT::convolution_mod({1,2},{3,4},998244353);
 */

@@ -1,6 +1,3 @@
-//LCA
-
-
 template<class T = long long>
 struct LCA {
     int n;
@@ -18,22 +15,21 @@ struct LCA {
           graph(n),
           depth(n, -1),
           dist_root(n, T{}) {
-
         while ((1LL << log) <= n) log++;
 
         parent.assign(log, vector<int>(n, -1));
     }
 
     void add_edge(int a, int b, T w = T{1}) {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         graph[a].push_back({b, w});
         graph[b].push_back({a, w});
     }
 
     void build(int root = 0) {
-        assert(0 <= root && root < n);
+        do { if (!(0 <= root && root < n)) std::abort(); } while (false);
 
         fill(depth.begin(), depth.end(), -1);
         fill(dist_root.begin(), dist_root.end(), T{});
@@ -72,7 +68,7 @@ struct LCA {
     }
 
     int kth_ancestor(int v, long long k) const {
-        assert(0 <= v && v < n);
+        do { if (!(0 <= v && v < n)) std::abort(); } while (false);
 
         if (k < 0 || k > depth[v]) return -1;
 
@@ -86,10 +82,10 @@ struct LCA {
     }
 
     int lca(int a, int b) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
-        assert(depth[a] != -1);
-        assert(depth[b] != -1);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
+        do { if (!(depth[a] != -1)) std::abort(); } while (false);
+        do { if (!(depth[b] != -1)) std::abort(); } while (false);
 
         if (depth[a] < depth[b]) swap(a, b);
 
@@ -120,8 +116,8 @@ struct LCA {
     }
 
     int jump(int a, int b, long long k) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         int c = lca(a, b);
 
@@ -139,14 +135,20 @@ struct LCA {
     }
 
     bool is_ancestor(int a, int b) const {
-        assert(0 <= a && a < n);
-        assert(0 <= b && b < n);
+        do { if (!(0 <= a && a < n)) std::abort(); } while (false);
+        do { if (!(0 <= b && b < n)) std::abort(); } while (false);
 
         return lca(a, b) == a;
     }
 };
 
 /*
+細かい注意点
+0-indexed、無向木。全辺をadd_edgeしてからbuild(root)。
+dist_edgesは辺数、distは辺重みの総和。重みと中間演算がTに収まること。
+kth_ancestor/jumpで該当頂点がなければ-1。jumpのkは辺数で数える。
+
+使える関数一覧
 LCA<ll> lca(N);                                // N 頂点で初期化 O(N log N) 0-index
 
 lca.add_edge(a,b);                             // 無重み辺 a-b を追加 O(1)
@@ -167,4 +169,12 @@ lca.is_ancestor(a,b);                          // a が b の祖先なら true O
 
 lca.depth[v];                                  // root から v までの辺数 O(1)
 lca.dist_root[v];                              // root から v までの重みの総和 O(1)
+
+基本の関数
+LCA<ll> lca(3);
+lca.add_edge(0,1,2); lca.add_edge(1,2,3);
+lca.build(0);
+auto ancestor = lca.lca(0,2);                 // 0
+auto distance = lca.dist(0,2);                // 5
+auto next = lca.jump(0,2,1);                  // 1
 */

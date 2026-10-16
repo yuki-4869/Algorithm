@@ -1,5 +1,3 @@
-//DynamicWeightedWaveletMatrix
-
 template<class Key = long long, class Val = long long>
 class DynamicWeightedWaveletMatrix {
     template<class T>
@@ -170,7 +168,7 @@ class DynamicWeightedWaveletMatrix {
                 else if (p == ls) return tr[x].bit;
                 else p -= ls + 1, x = tr[x].r;
             }
-            assert(false);
+            do { if (!(false)) std::abort(); } while (false);
             return false;
         }
 
@@ -194,7 +192,7 @@ class DynamicWeightedWaveletMatrix {
             int a, b, c;
             split_node(root, p, a, b);
             split_node(b, 1, b, c);
-            assert(b);
+            do { if (!(b)) std::abort(); } while (false);
             tr[b].l = tr[b].r = 0;
             free_ids.push_back(b);
             root = merge_node(a, c);
@@ -225,7 +223,7 @@ class DynamicWeightedWaveletMatrix {
         int p = pos;
         for (int lv = 0; lv < lg; lv++) {
             int b = (rank >> (lg - 1 - lv)) & 1;
-            assert(mat[lv].access(p) == b);
+            do { if (!(mat[lv].access(p) == b)) std::abort(); } while (false);
             int o = mat[lv].rank1(p), z = p - o, ztot = mat[lv].zeros();
             int np = b ? ztot + o : z;
             mat[lv].erase(p);
@@ -318,7 +316,7 @@ public:
         const vector<Val>& val,
         vector<Key> universe
     ) {
-        assert(key.size() == val.size());
+        do { if (!(key.size() == val.size())) std::abort(); } while (false);
         n = key.size();
 
         values = move(universe);
@@ -327,7 +325,7 @@ public:
         values.erase(unique(values.begin(), values.end()), values.end());
 
         sigma = values.size();
-        assert(sigma || !n);
+        do { if (!(sigma || !n)) std::abort(); } while (false);
 
         lg = 1;
         while ((1LL << lg) < max(1, sigma)) lg++;
@@ -387,7 +385,7 @@ public:
 
     void set_key(int p, const Key& key) {
         int nr = get_rank(key);
-        assert(0 <= p && p < n && nr != -1);
+        do { if (!(0 <= p && p < n && nr != -1)) std::abort(); } while (false);
         if (rank_now[p] == nr) return;
 
         erase_one(p, rank_now[p]);
@@ -396,7 +394,7 @@ public:
     }
 
     void set_value(int p, Val val) {
-        assert(0 <= p && p < n);
+        do { if (!(0 <= p && p < n)) std::abort(); } while (false);
         Val old = val_now[p];
         if (old == val) return;
 
@@ -408,7 +406,7 @@ public:
 
     void set(int p, const Key& key, Val val) {
         int nr = get_rank(key);
-        assert(0 <= p && p < n && nr != -1);
+        do { if (!(0 <= p && p < n && nr != -1)) std::abort(); } while (false);
 
         if (rank_now[p] == nr) return set_value(p, val);
 
@@ -459,7 +457,7 @@ public:
     }
 
     Key kth_smallest(int l, int r, int k) const {
-        assert(0 <= k && k < r - l);
+        do { if (!(0 <= k && k < r - l)) std::abort(); } while (false);
         int rank = 0;
 
         for (int lv = 0; lv < lg; lv++) {
@@ -500,7 +498,7 @@ public:
     }
 
     Val sum_k_smallest(int l, int r, int k) const {
-        assert(0 <= k && k <= r - l);
+        do { if (!(0 <= k && k <= r - l)) std::abort(); } while (false);
         Val ret{};
 
         for (int lv = 0; lv < lg; lv++) {
@@ -523,7 +521,7 @@ public:
     }
 
     optional<Key> lower_bound_by_sum(int l, int r, Val k) const {
-        assert(negative.sum(l, r) == 0);
+        do { if (!(negative.sum(l, r) == 0)) std::abort(); } while (false);
         if (k <= Val{} || range_sum(l, r) < k) return nullopt;
 
         int rank = 0;
@@ -546,8 +544,14 @@ public:
 };
 
 /*
-0-indexed、区間は [l,r)
+細かい注意点
+0-indexed、区間は[l,r)。sigmaはuniverseの異なるキー数。
+点更新に使うキーはuniverseへ事前登録する。keyとvalは別の列。
+kthのkは0-indexed。同一キーのsum_k_smallestは元の添字順で選ぶ。
+lower_bound_by_sumは区間内のvalが全て非負の場合だけ使う。
+通常操作O(log(sigma) log N)、range_sum O(log N)。和は値型に収まること。
 
+使える関数一覧
 DynamicWeightedWaveletMatrix<ll,ll> wm(key,val,universe);
 DynamicWeightedWaveletMatrix<ll,ll> wm(A,universe); // key==val
 
@@ -581,9 +585,10 @@ wm.sum_k_smallest(l,r,k);            // key が小さい方から k 個の val �
 wm.sum_k_largest(l,r,k);             // key が大きい方から k 個の val 総和
 
 wm.lower_bound_by_sum(l,r,x);        // key昇順に val を足して累積>=xとなる最小key
-                                     // [l,r) の val が全て非負である必要あり
 
-※ set_key/set で使う可能性のある key は universe に事前登録
-※ 同一 key の sum_k_smallest は index 小さい順で tie-break
-※ 通常操作 O(log(sigma) log N)、range_sum O(log N)
+基本の関数
+DynamicWeightedWaveletMatrix<ll,ll> wm(vl{3,1,2},vl{30,10,20},vl{1,2,3,4});
+wm.set(0,4,40);                              // キーと重みを更新
+auto key = wm.kth_smallest(0,3,0);            // 1
+auto sum = wm.range_sum(0,3);                 // 70
 */

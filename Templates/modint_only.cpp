@@ -1,15 +1,5 @@
 #include <bits/stdc++.h>
-//#include <atcoder/fenwicktree>
-//#include <atcoder/segtree>
-//#include <atcoder/lazysegtree>
-//#include <atcoder/string>
-//#include <atcoder/math>
-//#include <atcoder/convolution>
-//#include <atcoder/dsu>
-//#include <atcoder/maxflow>
-//#include <atcoder/mincostflow>
-//#include <atcoder/scc>
-//#include <atcoder/twosat>
+
 #include <atcoder/modint>
 using namespace std; using namespace atcoder;
 using ll=long long; using LL=__int128; using mint=modint998244353; using ld=long double;
@@ -46,8 +36,8 @@ template<class T> inline bool chmin(T& a,const T& b){if(a>b){a=b; return true;} 
 template<class T> inline bool chmax(T& a,const T& b){if(a<b){a=b; return true;} return false;}
 template<class T,class U> ll LB(const vector<T>& v,const U& a){return lower_bound(all(v),a)-v.begin();}
 template<class T,class U> ll UB(const vector<T>& v,const U& a){return upper_bound(all(v),a)-v.begin();}
-template<class T> T vec_min(const vector<T>& v){assert(!v.empty()); return *min_element(all(v));}
-template<class T> T vec_max(const vector<T>& v){assert(!v.empty()); return *max_element(all(v));}
+template<class T> T vec_min(const vector<T>& v){do { if (!(!v.empty())) std::abort(); } while (false); return *min_element(all(v));}
+template<class T> T vec_max(const vector<T>& v){do { if (!(!v.empty())) std::abort(); } while (false); return *max_element(all(v));}
 template<class T> T vec_sum(const vector<T>& v){T res=T(0); for(const auto& x:v) res+=x; return res;}
 
 template<class T=ll> vector<T> cin_vl(ll n){vector<T> ret(n); rep(i,n) cin>>ret[i]; return ret;}
@@ -62,8 +52,8 @@ template<class T> void cout_vl(const vector<T>& a,char sep=' ',char end='\n'){re
 template<class T> void Cout_vl(const vector<T>& a,const vector<T>& b){rep(i,sz(a)) cout<<a[i]<<" "<<b[i]<<'\n';}
 template<class T> void cout_vvl(const vector<vector<T>>& a){for(const auto& e:a) cout_vl(e);}
 
-ll ceil_div(ll a,ll b){assert(b!=0); if(b<0) a=-a,b=-b; if(a>=0) return (a+b-1)/b; return -((-a)/b);}
-ll floor_div(ll a,ll b){assert(b!=0); if(b<0) a=-a,b=-b; if(a>=0) return a/b; return -((-a+b-1)/b);}
+ll ceil_div(ll a,ll b){do { if (!(b!=0)) std::abort(); } while (false); if(b<0) a=-a,b=-b; if(a>=0) return (a+b-1)/b; return -((-a)/b);}
+ll floor_div(ll a,ll b){do { if (!(b!=0)) std::abort(); } while (false); if(b<0) a=-a,b=-b; if(a>=0) return a/b; return -((-a+b-1)/b);}
 ll isqrt(ll n){ll x=sqrtl(n); while((LL)(x+1)*(x+1)<=n) x++; while((LL)x*x>n) x--; return x;}
 template<class T> vector<T> sort_unique_vec(vector<T> v){sort(all(v)); v.erase(unique(all(v)),v.end()); return v;}
 template<class T> vector<ll> compress(const vector<T>& v){auto xs=sort_unique_vec(v); vector<ll> ret; for(auto& x:v) ret.pb(LB(xs,x)); return ret;}
@@ -71,8 +61,8 @@ template<class T> vector<T> prefix_sum(const vector<T>& v){vector<T> s(sz(v)+1,0
 template<class T> T range_sum(const vector<T>& s,ll l,ll r){return s[r]-s[l];}
 template<class T> vector<pair<T,ll>> run_length(const vector<T>& v){vector<pair<T,ll>> ret; for(auto& x:v){if(ret.empty()||ret.back().first!=x) ret.pb({x,1}); else ret.back().second++;} return ret;}
 vector<pair<char,ll>> run_length(const string& s){vector<pair<char,ll>> ret; for(char c:s){if(ret.empty()||ret.back().first!=c) ret.pb({c,1}); else ret.back().second++;} return ret;}
-template<class T> ll argmin(const vector<T>& v){assert(!v.empty()); return min_element(all(v))-v.begin();}
-template<class T> ll argmax(const vector<T>& v){assert(!v.empty()); return max_element(all(v))-v.begin();}
+template<class T> ll argmin(const vector<T>& v){do { if (!(!v.empty())) std::abort(); } while (false); return min_element(all(v))-v.begin();}
+template<class T> ll argmax(const vector<T>& v){do { if (!(!v.empty())) std::abort(); } while (false); return max_element(all(v))-v.begin();}
 template<class T> bool in_vec(const vector<T>& v,const T& x){return binary_search(all(v),x);}
 
 bool even(ll x){return x%2==0;}
@@ -110,11 +100,65 @@ signed main(){
     ll t;cin >> t;rep(i,t)solve();
 }
 void solve(){
-    
-    
 }
-    /*
 
-    python /home/yuki4869/expander.py    .cpp
+/*
+細かい注意点
+modintのみのテンプレート用の基本テンプレート。bits/stdc++.hとatcoder/modintを読み込む。
+ライブラリ本体はmain/solveの外、呼び出し例はmain/solveの中へ貼る。
+整数演算の中間値は各型に収まること。vec_min/max/argmin/maxは非空、除算のbは非0。
+LB/UB/in_vecはsort済み、Randomはl<r、Expはx>0かつy>=2。
+階乗の前計算範囲は法998244353未満。nCr/nPrは引数が範囲外なら0。
+前提違反を検出するチェックはメッセージなしで停止する。
+ll/LL/mintなどの型別名と、graph/Graph、各マクロを定義する。
+ACLのsegtree/lazy_segtreeを使う場合は対応ヘッダーを追加する。
 
-    */
+使える関数一覧
+vec2(n,m,x), vec3(n,m,l,x), vec4(a,b,c,d,x); // 多次元vector生成 O(要素数)
+sz(v);                                     // ll: 要素数 O(1)
+chmin(a,b), chmax(a,b);                    // bool: 更新したか O(1)
+LB(v,x), UB(v,x);                         // ll: sort済み列の挿入位置 O(log N)
+vec_min(v), vec_max(v), vec_sum(v);        // T: 最小・最大・和 O(N)
+cin_vl<T>(n);                             // vector<T>: 入力 O(n)
+cin_vvl<T>(h,w);                         // vector<vector<T>>: 入力 O(hw)
+cin_xy<T>(n), cin_xyz<T>(n);               // pair/tuple<vector<T>,...>: 列ごと入力 O(n)
+Cin_vl<T>(n,k);                           // vector<vector<T>>: n行k列を列ごと保持 O(nk)
+cin_pairs<T>(n), cin_tuples<T>(n);         // pair/tuple列入力 O(n)
+cout_vl(v,sep=' ',end='\n');               // void: 列出力 O(N)
+Cout_vl(a,b), cout_vvl(a);                 // void: 2列/多次元列出力 O(要素数)
+Swap(v,h,w);                             // void: 行列転置しh,wも交換 O(hw)
+ceil_div(a,b), floor_div(a,b);            // ll: 切り上げ/切り下げ除算 O(1)
+isqrt(n);                                // ll: floor(sqrt(n))
+sort_unique_vec(v);                      // vector<T>: sort・重複除去 O(N log N)
+compress(v);                             // vector<ll>: 座標圧縮 O(N log N)
+prefix_sum(v), prefix_sum2(a);            // 累積和 O(要素数)
+range_sum(s,l,r);                        // T: [l,r)の累積和差 O(1)
+run_length(v);                           // vector<pair<T,ll>>: ランレングス圧縮 O(N)
+argmin(v), argmax(v);                     // ll: 最小/最大位置 O(N)
+in_vec(v,x);                             // bool: sort済み列の存在判定 O(log N)
+even(x), odd(x);                         // bool: 偶数/奇数 O(1)
+grid_id(x,y,w), grid_xy(id,w);            // ll / pair<ll,ll>: 座標とIDの変換 O(1)
+gcd(a,b), lcm(a,b);                      // ll: 最大公約数/最小公倍数 O(log max(|a|,|b|))
+Exp(x,y);                                // ll: 正数xのy進桁数-1 O(log_y x)
+powmod(x,k,m);                           // ll: x^k mod m O(log k)
+square(x);                               // T: 二乗 O(1)
+Uni_erase(v);                            // void: sort・重複除去 O(N log N)
+OutIn(x,n), OutIn(x,y,h,w), OutIn(x,y,z,a,b,c); // bool: 範囲内判定 O(1)
+Random(l,r);                             // ll: [l,r)の乱数 O(1)
+YesNo(flag);                             // void: Yes/Noを出力
+vl_n(n), vl_N(n);                        // vector<ll>: 0..n-1 / 1..n O(n)
+factorial(N=1000000);                     // void: N+100まで階乗・逆階乗・2の冪 O(N)
+ensure_factorial(N);                     // void: 階乗表不足時に再構築 O(N)
+nCr(N,r), nPr(N,r);                      // mint: 二項係数/順列数、前計算後O(1)
+all(v), rall(v), rep(i,n), rrep(i,n), rep1(i,n), rep3(i,s,t), Re(n); // 範囲・反復マクロ
+p(x), p2(a,b), p3(a,b,c), p4(a,b,c,d), pe(x), pval(x), p_yes(), p_no(); // 出力マクロ
+rpq<T>, inverse_priority_queue;           // 小さい順priority_queue
+dx,dy,dx8,dy8;                           // 4近傍/8近傍の方向配列
+
+基本の関数
+vl A={3,1,3};
+auto sum = vec_sum(A);                        // 7
+auto compressed = compress(A);               // {1,0,1}
+factorial(10);
+auto combinations = nCr(5,2);                // 10
+*/

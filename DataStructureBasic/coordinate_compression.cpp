@@ -1,25 +1,13 @@
-// 比較順序を保つ0-indexedの座標圧縮。等価性も比較器から判定する。
-// Source: https://github.com/yuki-4869/Algorithm/blob/main/DataStructureBasic/coordinate_compression.cpp
-#include <algorithm>
-#include <functional>
-#include <initializer_list>
-#include <limits>
-#include <stdexcept>
-#include <type_traits>
-#include <utility>
-#include <vector>
-
 namespace coordinate_zip {
-
 template<class T, class Compare = std::less<T>>
 class Zip {
-    static_assert(std::is_copy_constructible_v<Compare>, "Zip: Compare must be copy constructible");
+    static_assert(std::is_copy_constructible_v<Compare>);
     Compare compare_;
     std::vector<T> xs_;
     bool built_ = true;
 
     void require_built() const {
-        if (!built_) throw std::logic_error("Zip: call build() after adding values");
+        if (!built_) std::abort();
     }
     bool equivalent(const T& a, const T& b) const {
         return !compare_(a,b) && !compare_(b,a);
@@ -46,7 +34,7 @@ public:
         }
         return *this;
     }
-    // 比較器はコピーし、ムーブ元でも引き続き利用できるようにする。
+
     Zip(Zip&& other) noexcept(std::is_nothrow_copy_constructible_v<Compare>)
         : compare_(other.compare_), xs_(std::move(other.xs_)), built_(other.built_) {
         other.clear();
@@ -63,7 +51,6 @@ public:
     }
 
     void add(const T& x) {
-        // z.add(z[i]) のように、自身の要素を参照している場合にも対応。
         T copy = x;
         built_ = false;
         xs_.push_back(std::move(copy));
@@ -71,7 +58,6 @@ public:
     void add(const std::vector<T>& a) {
         if (a.empty()) return;
         if (&a == &xs_) {
-            // vectorへの自己範囲挿入を避ける。
             const std::vector<T> copy = a;
             built_ = false;
             xs_.insert(xs_.end(),copy.begin(),copy.end());
@@ -92,7 +78,7 @@ public:
         xs_.erase(std::unique(xs_.begin(),xs_.end(),
             [this](const T& a,const T& b){ return equivalent(a,b); }),xs_.end());
         if (xs_.size()>static_cast<std::size_t>(std::numeric_limits<int>::max()))
-            throw std::length_error("Zip: too many distinct values for int indices");
+            std::abort();
         built_ = true;
     }
     void assign(const std::vector<T>& a) {
@@ -106,7 +92,6 @@ public:
     bool ready() const { return built_; }
     std::size_t pending_size() const { return xs_.size(); }
 
-    // lower/getは未登録値にも挿入位置を返す（旧APIとの互換動作）。
     int lower(const T& x) const {
         require_built();
         return static_cast<int>(std::lower_bound(xs_.begin(),xs_.end(),x,compare_)-xs_.begin());
@@ -127,7 +112,7 @@ public:
     const_reference at(int i) const {
         require_built();
         if (i<0 || static_cast<std::size_t>(i)>=xs_.size())
-            throw std::out_of_range("Zip: compressed index out of range");
+            std::abort();
         return xs_[static_cast<std::size_t>(i)];
     }
     const_reference operator[](int i) const { return at(i); }
@@ -150,7 +135,7 @@ public:
         result.reserve(a.size());
         for (const auto& x:a) {
             const int i=index(x);
-            if (i==-1) throw std::out_of_range("Zip: value is not registered");
+            if (i==-1) std::abort();
             result.push_back(i);
         }
         return result;
@@ -183,21 +168,26 @@ std::vector<std::pair<int,int>> zip2d(const std::vector<std::pair<X,Y>>& a,
     for (const auto& [p,q]:a) result.emplace_back(zx.index(p),zy.index(q));
     return result;
 }
+}
 
-} // namespace coordinate_zip
-
-// 名前空間の定義後に置く。Zip<long long> のように利用できる。
 using coordinate_zip::Zip;
 
 /*
-座標圧縮 公開API一覧（0-indexed）
+細かい注意点
+0-indexed。Tは値の型、Compareは比較器（既定std::less<T>）。
+Nは登録配列長、Uは異なる値の個数、Mは引数配列長、N2はotherの登録配列長。
+比較・値・比較器のコピー/移動をO(1)とした計算量。等価性は!cmp(a,b)&&!cmp(b,a)。
+add後はbuildが必要。再構築すると既存番号も変わり得る。空配列のaddは状態を変えない。
+get/zipは挿入位置。存在判定はcontains/index、登録値だけの変換はzip_exactを使う。
+未構築の検索や範囲外の逆引き、未登録値のzip_exactなどはメッセージなしで停止。
+Compareはstrict weak orderingを満たすコピー可能な型。代入には比較器のコピー代入も必要。
+同値の値は代表値1つへ統合。pair全体の圧縮とzip2dによる軸別の圧縮は異なる。
+const_referenceは通常const T&、T=boolではbool。イテレータは読み取り専用。
+追加・構築・代入・reserve等で値の参照やイテレータが無効になる場合がある。
+U<=INT_MAX。保持メモリはvectorのcapacityに比例、変換結果の追加領域はO(M)。
+デストラクタの解放はO(N)。
 
-T = 値の型、Compare = 比較器（省略時はstd::less<T>）。
-N = 登録配列の長さ（構築前は重複を含む）、U = 異なる値の個数。
-M = 引数の配列の長さ、N2 = otherの登録配列の長さ。otherはzと同じ型。
-比較・値と比較器のコピー・移動をO(1)とした計算量。等価性は!cmp(a,b)&&!cmp(b,a)。
-const_referenceは通常const T&（T=boolではbool）、const_iteratorは読み取り専用。
-
+使える関数一覧
 // 構築・コピー・ムーブ（コンストラクタには返り値はない）
 Zip<T> z;                                     // 構築済みの空の圧縮表を作る O(1)
 Zip<T> z(A);                                  // Aをソート・重複除去して構築 O(M log(M+1))
@@ -232,7 +222,7 @@ z.equal_range(x);                             // pair<int,int>: {lower(x),upper(
 z.count_range(l,r);                           // int: 比較順で[l,r)に入る登録値の種類数 O(log(U+1))
 
 // 番号から値・圧縮表を取得（構築済みで使用）
-z[i];                                       // const_reference: 番号iの元の値 O(1)、範囲外はout_of_range
+z[i];                                       // const_reference: 番号iの元の値 O(1)、0<=i<U
 z.at(i);                                      // const_reference: z[i]と同じ O(1)
 z.values();                                   // const vector<T>&: 比較順の重複なし圧縮表を返す O(1)
 z.begin();                                    // const_iterator: 最初の値を指す O(1)
@@ -243,8 +233,8 @@ z.empty();                                    // bool: 空の圧縮表ならtrue
 
 // 配列の圧縮・復元（構築済みで使用）
 z.zip(A);                                     // vector<int>: 各値のlower位置を返す（未登録値も許可） O(M log(U+1))
-z.zip_exact(A);                               // vector<int>: 各登録値の番号。未登録値があればout_of_range O(M log(U+1))
-z.unzip(ids);                                 // vector<T>: 番号列を代表値へ復元、範囲外はout_of_range O(M)
+z.zip_exact(A);                               // vector<int>: 各登録値の番号。全値が登録済みであること O(M log(U+1))
+z.unzip(ids);                                 // vector<T>: 番号列を代表値へ復元、0<=i<U O(M)
 
 // 表の構築も行う一括関数（追加メモリO(M)）
 coordinate_zip::zip(A);                       // vector<int>: Aを0-indexedに圧縮 O(M log(M+1))
@@ -252,15 +242,11 @@ coordinate_zip::zip(A,cmp);                   // vector<int>: 比較器を指定
 coordinate_zip::zip2d(P);                     // vector<pair<int,int>>: x,yを独立に圧縮 O(M log(M+1))
 coordinate_zip::zip2d(P,cx,cy);               // vector<pair<int,int>>: 各軸の比較器を指定して圧縮 O(M log(M+1))
 
-// 利用上の注意
-// add後はbuildが必要。未構築の検索・逆引き・size・列挙・変換はlogic_error（NDEBUGでも検出）。
-// 空の配列・リストのaddは何も変えない。再buildすると既存の圧縮番号も変わり得る。
-// get/zipは存在判定ではない。厳密な番号取得にはindex/zip_exactを使う。
-// Compareはstrict weak orderingを満たし、コピー可能であること。代入には比較器のコピー代入も必要。
-// 比較器で同値なら1種類に統合され、元の個別値ではなく代表値に復元される。
-// pair/tuple/stringも使用可能。Zip<pair<X,Y>>はpair全体、zip2dは各軸を独立に圧縮する。
-// 圧縮表・フラグは非公開。xsの代わりにvalues()、builtの代わりにready()を使う。
-// 保持した値の参照・イテレータは追加・構築・置換・clear・reserve等で無効になる場合がある。
-// UはINT_MAX以下。超過時のbuildはlength_error。変換結果はO(M)、保持メモリはvectorのcapacityに比例。
-// デストラクタは自動実行され、登録値の解放はO(N)。
+基本の関数
+vector<ll> A={30,10,30,20};
+Zip<ll> z(A);                                 // 圧縮表を構築
+auto ids = z.zip_exact(A);                    // {2,0,2,1}
+auto id = z.index(20);                        // 1
+auto value = z[id];                           // 20
+z.add(5); z.build();                          // 追加後は再構築
 */

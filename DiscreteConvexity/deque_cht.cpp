@@ -1,5 +1,3 @@
-//DequeCHT
-
 template<class T = long long, bool MINIMIZE = true>
 struct DequeCHT {
     static_assert(is_integral_v<T> && sizeof(T) <= 8);
@@ -54,7 +52,7 @@ struct DequeCHT {
         Line line = normalize(a, b);
 
         if (has_last_slope) {
-            assert(last_slope >= line.a);
+            do { if (!(last_slope >= line.a)) std::abort(); } while (false);
         }
 
         last_slope = line.a;
@@ -83,10 +81,10 @@ struct DequeCHT {
     }
 
     T query(T x) {
-        assert(!lines.empty());
+        do { if (!(!lines.empty())) std::abort(); } while (false);
 
         if (has_last_x) {
-            assert(last_x <= x);
+            do { if (!(last_x <= x)) std::abort(); } while (false);
         }
 
         last_x = x;
@@ -128,9 +126,13 @@ struct DequeCHT {
 };
 
 /*
-整数係数・整数 x 用
-x のクエリ順も単調である場合の高速 CHT
+細かい注意点
+整数係数・整数x用。最小値版は傾き降順、最大値版(false)は傾き昇順で追加する。
+同じ傾きは最小値版なら最小切片、最大値版なら最大切片だけを残す。
+非空でqueryを呼ぶ。a*x+bはTの範囲内。内部比較は__int128。
+xも単調増加で与える。add/queryは交互に呼んでよい。
 
+使える関数一覧
 DequeCHT<ll> cht;                              // 最小値を管理
 DequeCHT<ll,false> cht;                        // 最大値を管理
 
@@ -141,24 +143,9 @@ cht.size();                                    // 現在 hull に残っている
 cht.empty();                                   // 直線が0本なら true O(1)
 cht.clear();                                   // 全直線を削除 O(N)
 
-最小値版:
-    傾き a を単調減少で追加する必要がある
-    a1 >= a2 >= a3 >= ...
-
-最大値版:
-    傾き a を単調増加で追加する必要がある
-    a1 <= a2 <= a3 <= ...
-
-query(x):
-    x を単調増加で与える必要がある
-    x1 <= x2 <= x3 <= ...
-
-同じ傾きの直線を追加した場合、
-最小値版では切片が小さい方、
-最大値版では切片が大きい方だけを残す
-
-※ add_line と query は交互に呼び出してもよい
-※ 各直線は deque から高々1回削除されるので全体で線形時間
-※ a*x+b の最終結果が T の範囲内に収まる必要がある
-※ 交点比較・a*x+b の内部計算には __int128 を使用
+基本の関数
+DequeCHT<ll> cht;
+cht.add_line(2,0);
+cht.add_line(-1,3);
+auto value = cht.query(2);                    // 1 償却O(1)
 */

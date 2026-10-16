@@ -39,19 +39,21 @@ GaussAns<T> GaussianElimination(vector<vector<T>> a,vector<T> b){
 }
 
 /*
+細かい注意点
+AはN行M列、bはN要素。要素型Tは四則演算と逆元を持つ体を想定する。
+modintなどの厳密な演算用。浮動小数点の誤差判定は別途調整が必要。
+解なしならok=false。自由変数を0とした解を1つだけ返す。
+元のA,bは値渡しでコピーされ、変更されない。
 
-GaussAns<T> GaussianElimination(A,b) Ax=bを解き、存在判定・rank・解の1つを返す O(N*M*min(N,M))
+使える関数一覧
+GaussianElimination(A,b); // GaussAns<T>: Ax=bを解く O(N*M*min(N,M))
+result.ok;               // bool: 解が存在するか
+result.rank;             // ll: 係数行列のrank
+result.x;                // vector<T>: 自由変数0の解
 
-res.ok 解が存在するか
-res.rank 行列Aのrank
-res.x 解の1つ、自由変数は0
-
-using mint=atcoder::modint998244353;
-auto res=GaussianElimination<mint>(A,b);
-if(res.ok)auto x=res.x;
-
-A=vector<vector<T>>
-b=vector<T>
-modintなど四則演算と逆元が使える体を想定
-解が複数ある場合も1つだけ返す
+基本の関数
+vector<vector<mint>> A={{1,1},{1,2}};
+vector<mint> b={3,5};
+auto result = GaussianElimination(A,b);
+if(result.ok){auto solution=result.x;}        // {1,2}
 */

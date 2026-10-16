@@ -32,18 +32,19 @@ GF2Ans<W> GF2Gaussian(vector<bitset<W>> a){
 }
 
 /*
-GF2Ans<W> GF2Gaussian(a) XOR連立方程式を解き、存在判定・rank・解の1つを返す O(N*M^2/64)
+細かい注意点
+GF(2)上の連立方程式。bitset<W>の下位W-1ビットが係数、最上位ビットが右辺。
+Wはコンパイル時定数でW>=1。変数数M=W-1。入力は値渡しで変更されない。
+解なしならok=false、自由変数は0。rankは右辺を除く係数行列のrank。
 
-res.ok 解が存在するか
-res.rank 係数行列のrank
-res.x 解の1つ、自由変数は0
+使える関数一覧
+GF2Gaussian(a);      // GF2Ans<W>: XOR連立方程式を解く
+result.ok;          // bool: 解が存在するか
+result.rank;        // ll: 係数行列のrank
+result.x;           // vector<ll>: 自由変数0の0/1解
 
-const ll M=100;
-vector<bitset<M+1>> a(N);
-auto res=GF2Gaussian(a);
-
-a[i][0..M-1] 係数
-a[i][M] 右辺
-方程式は全てmod2、つまりXORとして扱う
-解が複数ある場合も1つだけ返す
+基本の関数
+vector<bitset<3>> equations={bitset<3>(0b111),bitset<3>(0b010)};
+auto result = GF2Gaussian(equations);
+if(result.ok){auto solution=result.x;}        // {1,0}
 */

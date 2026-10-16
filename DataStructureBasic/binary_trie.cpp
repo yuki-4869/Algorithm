@@ -1,4 +1,3 @@
-#include <bits/stdc++.h>
 using namespace std;
 using ll = long long;
 
@@ -105,8 +104,8 @@ struct BinaryTrie {
     }
 
     ll get_prefix_node(ll prefix, int digits) const {
-        assert(0 <= digits && digits <= B + 1);
-        assert(0 <= prefix && (prefix >> digits) == 0);
+        do { if (!(0 <= digits && digits <= B + 1)) std::abort(); } while (false);
+        do { if (!(0 <= prefix && (prefix >> digits) == 0)) std::abort(); } while (false);
 
         ll v = node_count(0) > 0 ? 0 : -1;
         for (int j = digits - 1; j >= 0 && v >= 0; j--) {
@@ -119,28 +118,14 @@ struct BinaryTrie {
 };
 
 /*
+細かい注意点
+非負整数の多重集合。値は0以上2^(B+1)未満（既定B=60）。
+eraseは登録済みの値、min_xor/max_xorは非空、kthは0<=k<size()で使用する。
+get_node/get_prefix_nodeはxor_all後の値、childのbitは内部保存値に対する桁。
+get_prefix_node(prefix,digits)は上位digits桁を検索。digits=0は根を表す。
+ノード番号はinsertによる領域拡張でも変わらない。log AはB+1に相当する。
 
-BinaryTrie bt;
-bt.insert(5);
-bt.insert(10);
-ll a=bt.min_xor(7);
-ll b=bt.kth(0);
-bt.xor_all(3);
-ll v=bt.get_node(6);
-ll c=bt.node_count(v);
-ll w=bt.get_prefix_node(0b00110,5);
-
-重複要素に対応
-erase(x)はxが存在する状態で使う
-min_xor(x),max_xor(x)はsize()>0の状態で使う
-kth(k)は0<=k<size()を想定
-扱う整数は0以上2^(B+1)未満を想定。B=60ならbit60からbit0までを扱う
-get_prefix_node(0b00110,5)はB=60ならbit60〜56が00110である値を表す
-get_prefix_node(0,0)は空でなければ根Node 0を返す
-get_node(x)とget_prefix_node(prefix,digits)はxor_all適用後の値を検索する
-child(v,bit)のbitはTrie内に保存された値の桁（xor_all適用前）を表す
-Node番号はtの添字。insertでtが拡張されても番号は変わらない
-
+使える関数一覧
 BinaryTrie bt;構築
 
 void insert(x) xを1個追加 O(logA)
@@ -156,4 +141,12 @@ ll get_node(x) 現在の値xに対応する葉Nodeの番号を返す。存在し
 ll child(v,bit) Node vから保存値の次の桁がbitの子Nodeの番号を返す。存在しなければ-1 O(1)
 ll node_count(v) Node v以下の要素数を返す。v==-1なら0 O(1)
 ll get_prefix_node(prefix,digits) 現在の値の上位digits桁がprefixのNodeの番号を返す。存在しなければ-1 O(digits)
+
+基本の関数
+BinaryTrie bt;                                // 空で構築
+bt.insert(5);                                 // 5を追加
+bt.insert(10);
+auto minimum = bt.min_xor(7);                 // min(v xor 7)=2
+auto first = bt.kth(0);                       // 最小値5
+bt.erase(5);                                  // 5を1個削除
 */
