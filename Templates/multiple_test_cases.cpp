@@ -1,3 +1,4 @@
+// https://github.com/yuki-4869/Algorithm/blob/main/Templates/multiple_test_cases.cpp
 #include <bits/stdc++.h>
 #include <atcoder/all>
 using namespace std; using namespace atcoder;
