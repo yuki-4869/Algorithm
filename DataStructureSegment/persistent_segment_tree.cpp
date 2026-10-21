@@ -19,7 +19,8 @@ private:
         pool_.emplace_back(value,left,right);
         return &pool_.back();
     }
-    Node*merge_(Node*left,Node*right){return make_node_(f_(left->data,right->data),left,right);}
+    T combine_(const T&left,const T&right)const{return f_(left,right);}
+    Node*merge_(Node*left,Node*right){return make_node_(combine_(left->data,right->data),left,right);}
     void check_root_(const Node*root)const{if(root==nullptr)std::abort();}
     Node*build_(const std::vector<T>&v,ll l,ll r){
         if(r-l==1)return make_node_(v[static_cast<std::size_t>(l)],nil_,nil_);
@@ -28,7 +29,7 @@ private:
     }
     template<class G>
     Node*update_apply_(Node*root,ll k,const G&g,ll l,ll r){
-        if(r-l==1)return make_node_(g(root->data),nil_,nil_);
+        if(r-l==1){T value=root->data;return make_node_(g(value),nil_,nil_);}
         const ll m=l+(r-l)/2;
         if(k<m)return merge_(update_apply_(root->l,k,g,l,m),root->r);
         return merge_(root->l,update_apply_(root->r,k,g,m,r));
@@ -37,13 +38,13 @@ private:
         if(root==nil_||r<=a||b<=l)return id_;
         if(a<=l&&r<=b)return root->data;
         const ll m=l+(r-l)/2;
-        return f_(query_(root->l,a,b,l,m),query_(root->r,a,b,m,r));
+        return combine_(query_(root->l,a,b,l,m),query_(root->r,a,b,m,r));
     }
     template<class C>
     ll max_right_(Node*root,ll l,ll r,ll ql,T&sum,const C&check)const{
         if(r<=ql)return n_;
         if(ql<=l){
-            T next=f_(sum,root->data);
+            T next=combine_(sum,root->data);
             if(check(next)){sum=next;return n_;}
             if(r-l==1)return l;
         }
@@ -99,6 +100,7 @@ public:
 0-indexed、区間は[l,r)。0<=N<=LLONG_MAX。fは結合則、IDは左右の単位元。
 build(v)はv.size()==N。new_treeは全要素IDの根を追加ノードなしで返す。
 update/update_applyは新しい根を返し、古い根を変更しない。返り値を保存すること。
+gには旧値の作業用コピーを渡す。参照引数を書き換えるgでも共有ノードは変更しない。
 根は同じpstが返したものだけを使い、Nodeのdata/l/rを直接変更しない。
 木本体のコピー・ムーブは禁止。根ポインタのコピーは状態の共有O(1)。pst破棄時に全根が無効になる。
 NODES>=1は全バージョンを合わせたノード上限。番兵1個を含み、必要な分だけ確保する。
