@@ -96,6 +96,34 @@ void ensure_factorial(ll N){if((ll)fac.size()>N) return; factorial(N);}
 mint nCr(ll N,ll r){if(N<0||r<0||N<r) return 0; ensure_factorial(N); return fac[N]*finv[r]*finv[N-r];}
 mint nPr(ll N,ll r){if(N<0||r<0||N<r) return 0; ensure_factorial(N); return fac[N]*finv[N-r];}
 
+vl dijkstra(const graph& g,const vl& starts){
+    vl dist(g.size(),inf); queue<ll> q;
+    for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push(s);}
+    while(!q.empty()){
+        ll v=q.front(); q.pop();
+        for(ll to:g[v]) if(dist[to]==inf){dist[to]=dist[v]+1; q.push(to);}
+    }
+    return dist;
+}
+vl dijkstra(const graph& g,ll s){return dijkstra(g,vl{s});}
+vl dijkstra(const graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
+vl dijkstra(const Graph& g,const vl& starts){
+    vl dist(g.size(),inf); rpq<pll> q;
+    for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push({0,s});}
+    while(!q.empty()){
+        auto [d,v]=q.top(); q.pop();
+        if(d!=dist[v]) continue;
+        for(auto [to,w]:g[v]){
+            if(w>=inf-d) continue;
+            ll nd=d+w;
+            if(nd<dist[to]){dist[to]=nd; q.push({nd,to});}
+        }
+    }
+    return dist;
+}
+vl dijkstra(const Graph& g,ll s){return dijkstra(g,vl{s});}
+vl dijkstra(const Graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
+
 void solve();
 signed main(){
     ios::sync_with_stdio(false); cin.tie(nullptr);
@@ -105,3 +133,4 @@ signed main(){
     rep(i,t) solve();
 }
 void solve(){
+	

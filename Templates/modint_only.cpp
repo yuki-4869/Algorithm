@@ -94,6 +94,34 @@ void ensure_factorial(ll N){if((ll)fac.size()>N) return; factorial(N);}
 mint nCr(ll N,ll r){if(N<0||r<0||N<r) return 0; ensure_factorial(N); return fac[N]*finv[r]*finv[N-r];}
 mint nPr(ll N,ll r){if(N<0||r<0||N<r) return 0; ensure_factorial(N); return fac[N]*finv[N-r];}
 
+vl dijkstra(const graph& g,const vl& starts){
+    vl dist(g.size(),inf); queue<ll> q;
+    for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push(s);}
+    while(!q.empty()){
+        ll v=q.front(); q.pop();
+        for(ll to:g[v]) if(dist[to]==inf){dist[to]=dist[v]+1; q.push(to);}
+    }
+    return dist;
+}
+vl dijkstra(const graph& g,ll s){return dijkstra(g,vl{s});}
+vl dijkstra(const graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
+vl dijkstra(const Graph& g,const vl& starts){
+    vl dist(g.size(),inf); rpq<pll> q;
+    for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push({0,s});}
+    while(!q.empty()){
+        auto [d,v]=q.top(); q.pop();
+        if(d!=dist[v]) continue;
+        for(auto [to,w]:g[v]){
+            if(w>=inf-d) continue;
+            ll nd=d+w;
+            if(nd<dist[to]){dist[to]=nd; q.push({nd,to});}
+        }
+    }
+    return dist;
+}
+vl dijkstra(const Graph& g,ll s){return dijkstra(g,vl{s});}
+vl dijkstra(const Graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
+
 void solve();
 signed main(){
     ios::sync_with_stdio(false); cin.tie(nullptr);
@@ -109,11 +137,15 @@ modintのみのテンプレート用の基本テンプレート。bits/stdc++.h�
 整数演算の中間値は各型に収まること。vec_min/max/argmin/maxは非空、除算のbは非0。
 LB/UB/in_vecはsort済み、Randomはl<r、Expはx>0かつy>=2。
 階乗の前計算範囲は法998244353未満。nCr/nPrは引数が範囲外なら0。
+dijkstraは0-indexed、返り値はg.size()項、未到達はinf。Graphの辺は{行き先,非負重み}。
+dijkstraの正確な距離はinf未満。N=g.size()、M=登録辺数、K=始点リスト長。
 前提違反を検出するチェックはメッセージなしで停止する。
 ll/LL/mintなどの型別名と、graph/Graph、各マクロを定義する。
 ACLのsegtree/lazy_segtreeを使う場合は対応ヘッダーを追加する。
 
 使える関数一覧
+dijkstra(const graph& g,ll s / const vl& starts / initializer_list<ll> starts); // vl: 重み1の最短距離 O(N+M+K)
+dijkstra(const Graph& g,ll s / const vl& starts / initializer_list<ll> starts); // vl: 非負重みの最短距離 O(N+K+M log(M+2))
 vec2(n,m,x), vec3(n,m,l,x), vec4(a,b,c,d,x); // 多次元vector生成 O(要素数)
 sz(v);                                     // ll: 要素数 O(1)
 chmin(a,b), chmax(a,b);                    // bool: 更新したか O(1)
@@ -161,4 +193,10 @@ auto sum = vec_sum(A);                        // 7
 auto compressed = compress(A);               // {1,0,1}
 factorial(10);
 auto combinations = nCr(5,2);                // 10
+graph g={{1},{2},{},{}};
+assert((dijkstra(g,0)==vl{0,1,2,inf}));
+assert((dijkstra(g,vl{0,2})==vl{0,1,0,inf}));
+Graph wg={{{1,5},{2,20}},{{2,7}},{},{}};
+assert((dijkstra(wg,0)==vl{0,5,12,inf}));
+assert((dijkstra(wg,{0,2})==vl{0,5,0,inf}));
 */
