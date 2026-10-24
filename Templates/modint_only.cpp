@@ -18,7 +18,7 @@ const ll Inf=2147483647LL, Inf9=1000000000LL, inf=9223372036854775807LL, inf18=1
 #define rep1(i,n) for(ll i=1;i<=(ll)(n);i++)
 #define rep3(i,s,t) for(ll i=(ll)(s);i<(ll)(t);i++)
 #define pb push_back
-#define p(s) cout<<(s)<<'\n'
+#define p(s) ([](auto&& value)->std::ostream&{if constexpr(std::is_same_v<std::remove_cvref_t<decltype(value)>,long double>){auto flags=std::cout.flags();auto precision=std::cout.precision();std::cout<<std::fixed<<std::setprecision(12)<<value<<'\n';std::cout.flags(flags);std::cout.precision(precision);return std::cout;}else return std::cout<<std::forward<decltype(value)>(value)<<'\n';}((s)))
 #define p2(s,t) cout<<(s)<<" "<<(t)<<'\n'
 #define p3(s,t,u) cout<<(s)<<" "<<(t)<<" "<<(u)<<'\n'
 #define p4(s,t,u,v) cout<<(s)<<" "<<(t)<<" "<<(u)<<" "<<(v)<<'\n'
@@ -166,7 +166,8 @@ factorial(N=1000000);                     // void: N+100まで階乗・逆階乗
 ensure_factorial(N);                     // void: 階乗表不足時に再構築 O(N)
 nCr(N,r), nPr(N,r);                      // mint: 二項係数/順列数、前計算後O(1)
 all(v), rall(v), rep(i,n), rrep(i,n), rep1(i,n), rep3(i,s,t), Re(n); // 範囲・反復マクロ
-p(x), p2(a,b), p3(a,b,c), p4(a,b,c,d), pe(x), pval(x), p_yes(), p_no(); // 出力マクロ
+p(x);                                    // ostream&: 1行出力、long doubleは小数点以下12桁。出力後は書式を復元
+p2(a,b), p3(a,b,c), p4(a,b,c,d), pe(x), pval(x), p_yes(), p_no(); // 出力マクロ
 rpq<T>, inverse_priority_queue;           // 小さい順priority_queue
 dx,dy,dx8,dy8;                           // 4近傍/8近傍の方向配列
 

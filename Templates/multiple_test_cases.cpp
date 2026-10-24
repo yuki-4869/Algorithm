@@ -18,7 +18,7 @@ const ll Inf=2147483647LL, Inf9=1000000000LL, inf=9223372036854775807LL, inf18=1
 #define rep1(i,n) for(ll i=1;i<=(ll)(n);i++)
 #define rep3(i,s,t) for(ll i=(ll)(s);i<(ll)(t);i++)
 #define pb push_back
-#define p(s) cout<<(s)<<'\n'
+#define p(s) ([](auto&& value)->std::ostream&{if constexpr(std::is_same_v<std::remove_cvref_t<decltype(value)>,long double>){auto flags=std::cout.flags();auto precision=std::cout.precision();std::cout<<std::fixed<<std::setprecision(12)<<value<<'\n';std::cout.flags(flags);std::cout.precision(precision);return std::cout;}else return std::cout<<std::forward<decltype(value)>(value)<<'\n';}((s)))
 #define p2(s,t) cout<<(s)<<" "<<(t)<<'\n'
 #define p3(s,t,u) cout<<(s)<<" "<<(t)<<" "<<(u)<<'\n'
 #define p4(s,t,u,v) cout<<(s)<<" "<<(t)<<" "<<(u)<<" "<<(v)<<'\n'
@@ -85,16 +85,14 @@ mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 ll Random(ll l,ll r){uniform_int_distribution<ll> dist(l,r-1); return dist(rng);} // [l,r)乱数
 void YesNo(bool x){x?p_yes():p_no();} // Yes/No出力
 vl vl_n(ll n){vl ret(n); rep(i,n) ret[i]=i; return ret;} // 0..n-1のvector生成
+vl vl_N(ll n){vl ret(n); rep(i,n) ret[i]=i+1; return ret;} // 1..nのvector生成
 vl dijkstra(const graph& g,const vl& starts){ vl dist(g.size(),inf); queue<ll> q; for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push(s);} while(!q.empty()){ ll v=q.front(); q.pop(); for(ll to:g[v]) if(dist[to]==inf){dist[to]=dist[v]+1; q.push(to);} } return dist; }
 vl dijkstra(const graph& g,ll s){return dijkstra(g,vl{s});}
 vl dijkstra(const graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
 vl dijkstra(const Graph& g,const vl& starts){ vl dist(g.size(),inf); rpq<pll> q; for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push({0,s});} while(!q.empty()){ auto [d,v]=q.top(); q.pop(); if(d!=dist[v]) continue; for(auto [to,w]:g[v]){ if(w>=inf-d) continue; ll nd=d+w; if(nd<dist[to]){dist[to]=nd; q.push({nd,to});} } } return dist; }
 vl dijkstra(const Graph& g,ll s){return dijkstra(g,vl{s});}
 vl dijkstra(const Graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
-
 const vl Pow2={1LL,2LL,4LL,8LL,16LL,32LL,64LL,128LL,256LL,512LL,1024LL,2048LL,4096LL,8192LL,16384LL,32768LL,65536LL,131072LL,262144LL,524288LL,1048576LL,2097152LL,4194304LL,8388608LL,16777216LL,33554432LL,67108864LL,134217728LL,268435456LL,536870912LL,1073741824LL,2147483648LL,4294967296LL,8589934592LL,17179869184LL,34359738368LL,68719476736LL,137438953472LL,274877906944LL,549755813888LL,1099511627776LL,2199023255552LL,4398046511104LL,8796093022208LL,17592186044416LL,35184372088832LL,70368744177664LL,140737488355328LL,281474976710656LL,562949953421312LL,1125899906842624LL,2251799813685248LL,4503599627370496LL,9007199254740992LL,18014398509481984LL,36028797018963968LL,72057594037927936LL,144115188075855872LL,288230376151711744LL,576460752303423488LL,1152921504606846976LL};
-
-vl vl_N(ll n){vl ret(n); rep(i,n) ret[i]=i+1; return ret;} // 1..nのvector生成
 
 vl dx={0,1,0,-1}, dy={1,0,-1,0};
 vl dx8={1,1,0,-1,-1,-1,0,1}, dy8={0,1,1,1,0,-1,-1,-1}; // 8近傍
