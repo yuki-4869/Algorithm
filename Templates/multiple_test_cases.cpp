@@ -85,6 +85,15 @@ mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 ll Random(ll l,ll r){uniform_int_distribution<ll> dist(l,r-1); return dist(rng);}
 void YesNo(bool x){x?p_yes():p_no();}
 vl vl_n(ll n){vl ret(n); rep(i,n) ret[i]=i; return ret;}
+vl dijkstra(const graph& g,const vl& starts){ vl dist(g.size(),inf); queue<ll> q; for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push(s);} while(!q.empty()){ ll v=q.front(); q.pop(); for(ll to:g[v]) if(dist[to]==inf){dist[to]=dist[v]+1; q.push(to);} } return dist; }
+vl dijkstra(const graph& g,ll s){return dijkstra(g,vl{s});}
+vl dijkstra(const graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
+vl dijkstra(const Graph& g,const vl& starts){ vl dist(g.size(),inf); rpq<pll> q; for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push({0,s});} while(!q.empty()){ auto [d,v]=q.top(); q.pop(); if(d!=dist[v]) continue; for(auto [to,w]:g[v]){ if(w>=inf-d) continue; ll nd=d+w; if(nd<dist[to]){dist[to]=nd; q.push({nd,to});} } } return dist; }
+vl dijkstra(const Graph& g,ll s){return dijkstra(g,vl{s});}
+vl dijkstra(const Graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
+
+const vector<unsigned long long> Pow2={1ULL,2ULL,4ULL,8ULL,16ULL,32ULL,64ULL,128ULL,256ULL,512ULL,1024ULL,2048ULL,4096ULL,8192ULL,16384ULL,32768ULL,65536ULL,131072ULL,262144ULL,524288ULL,1048576ULL,2097152ULL,4194304ULL,8388608ULL,16777216ULL,33554432ULL,67108864ULL,134217728ULL,268435456ULL,536870912ULL,1073741824ULL,2147483648ULL,4294967296ULL,8589934592ULL,17179869184ULL,34359738368ULL,68719476736ULL,137438953472ULL,274877906944ULL,549755813888ULL,1099511627776ULL,2199023255552ULL,4398046511104ULL,8796093022208ULL,17592186044416ULL,35184372088832ULL,70368744177664ULL,140737488355328ULL,281474976710656ULL,562949953421312ULL,1125899906842624ULL,2251799813685248ULL,4503599627370496ULL,9007199254740992ULL,18014398509481984ULL,36028797018963968ULL,72057594037927936ULL,144115188075855872ULL,288230376151711744ULL,576460752303423488ULL,1152921504606846976ULL,2305843009213693952ULL,4611686018427387904ULL,9223372036854775808ULL};
+
 vl vl_N(ll n){vl ret(n); rep(i,n) ret[i]=i+1; return ret;}
 
 vl dx={0,1,0,-1}, dy={1,0,-1,0};
@@ -95,34 +104,6 @@ void factorial(ll N=1000000LL){ll M=N+100; fac.assign(M+1,1); finv.assign(M+1,1)
 void ensure_factorial(ll N){if((ll)fac.size()>N) return; factorial(N);}
 mint nCr(ll N,ll r){if(N<0||r<0||N<r) return 0; ensure_factorial(N); return fac[N]*finv[r]*finv[N-r];}
 mint nPr(ll N,ll r){if(N<0||r<0||N<r) return 0; ensure_factorial(N); return fac[N]*finv[N-r];}
-
-vl dijkstra(const graph& g,const vl& starts){
-    vl dist(g.size(),inf); queue<ll> q;
-    for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push(s);}
-    while(!q.empty()){
-        ll v=q.front(); q.pop();
-        for(ll to:g[v]) if(dist[to]==inf){dist[to]=dist[v]+1; q.push(to);}
-    }
-    return dist;
-}
-vl dijkstra(const graph& g,ll s){return dijkstra(g,vl{s});}
-vl dijkstra(const graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
-vl dijkstra(const Graph& g,const vl& starts){
-    vl dist(g.size(),inf); rpq<pll> q;
-    for(ll s:starts) if(dist[s]==inf){dist[s]=0; q.push({0,s});}
-    while(!q.empty()){
-        auto [d,v]=q.top(); q.pop();
-        if(d!=dist[v]) continue;
-        for(auto [to,w]:g[v]){
-            if(w>=inf-d) continue;
-            ll nd=d+w;
-            if(nd<dist[to]){dist[to]=nd; q.push({nd,to});}
-        }
-    }
-    return dist;
-}
-vl dijkstra(const Graph& g,ll s){return dijkstra(g,vl{s});}
-vl dijkstra(const Graph& g,initializer_list<ll> starts){return dijkstra(g,vl(starts));}
 
 void solve();
 signed main(){
