@@ -18,11 +18,18 @@ const ll Inf=2147483647LL, Inf9=1000000000LL, inf=9223372036854775807LL, inf18=1
 #define rep1(i,n) for(ll i=1;i<=(ll)(n);i++)
 #define rep3(i,s,t) for(ll i=(ll)(s);i<(ll)(t);i++)
 #define pb push_back
-#define p(s) ([](auto&& value)->std::ostream&{if constexpr(std::is_same_v<std::remove_cvref_t<decltype(value)>,long double>){auto flags=std::cout.flags();auto precision=std::cout.precision();std::cout<<std::fixed<<std::setprecision(12)<<value<<'\n';std::cout.flags(flags);std::cout.precision(precision);return std::cout;}else return std::cout<<std::forward<decltype(value)>(value)<<'\n';}((s)))
+#define p(s) cout<<(s)<<'\n'
 #define p2(s,t) cout<<(s)<<" "<<(t)<<'\n'
 #define p3(s,t,u) cout<<(s)<<" "<<(t)<<" "<<(u)<<'\n'
 #define p4(s,t,u,v) cout<<(s)<<" "<<(t)<<" "<<(u)<<" "<<(v)<<'\n'
-#define pe(s) cout<<(s)<<' '
+#define pe(s) cout<<(s)<<endl
+#define pld(...) ([](const auto&... values)->std::ostream&{auto flags=std::cout.flags();auto precision=std::cout.precision();std::cout<<std::fixed<<std::setprecision(12);size_t i=0;((std::cout<<(i++?" ":"")<<static_cast<long double>(values)),...);std::cout<<'\n';std::cout.flags(flags);std::cout.precision(precision);return std::cout;}(__VA_ARGS__))
+#define pld2(s,t) pld((s),(t))
+#define pld3(s,t,u) pld((s),(t),(u))
+#define pld4(s,t,u,v) pld((s),(t),(u),(v))
+#define pe2(s,t) cout<<(s)<<" "<<(t)<<endl
+#define pe3(s,t,u) cout<<(s)<<" "<<(t)<<" "<<(u)<<endl
+#define pe4(s,t,u,v) cout<<(s)<<" "<<(t)<<" "<<(u)<<" "<<(v)<<endl
 #define pval(s) cout<<(s).val()<<'\n'
 #define Sort(A) sort(all(A))
 #define RSort(A) sort(rall(A))
@@ -49,6 +56,7 @@ template<class T=ll> vector<pair<T,T>> cin_pairs(ll n){vector<pair<T,T>> ret(n);
 template<class T=ll> vector<tuple<T,T,T>> cin_tuples(ll n){vector<tuple<T,T,T>> ret(n); rep(i,n){T a,b,c; cin>>a>>b>>c; ret[i]={a,b,c};} return ret;}
 
 template<class T> void cout_vl(const vector<T>& a,char sep=' ',char end='\n'){rep(i,sz(a)){if(i) cout<<sep; cout<<a[i];} cout<<end;}
+template<class T> void cout_ver(const vector<T>& a){for(const auto& value:a) cout<<value<<'\n';}
 template<class T> void Cout_vl(const vector<T>& a,const vector<T>& b){rep(i,sz(a)) cout<<a[i]<<" "<<b[i]<<'\n';}
 template<class T> void cout_vvl(const vector<vector<T>>& a){for(const auto& e:a) cout_vl(e);}
 
@@ -166,7 +174,10 @@ factorial(N=1000000);                     // void: N+100まで階乗・逆階乗
 ensure_factorial(N);                     // void: 階乗表不足時に再構築 O(N)
 nCr(N,r), nPr(N,r);                      // mint: 二項係数/順列数、前計算後O(1)
 all(v), rall(v), rep(i,n), rrep(i,n), rep1(i,n), rep3(i,s,t), Re(n); // 範囲・反復マクロ
-p(x);                                    // ostream&: 1行出力、long doubleは小数点以下12桁。出力後は書式を復元
+p(x);                                    // ostream&: 通常の1行出力
+pld(x), pld2(a,b), pld3(a,b,c), pld4(a,b,c,d); // 数値を小数点以下12桁で出力
+pe(x), pe2(a,b), pe3(a,b,c), pe4(a,b,c,d); // 改行してフラッシュ
+cout_ver(a);                             // 各要素を1行ずつ出力 O(N+出力文字数)
 p2(a,b), p3(a,b,c), p4(a,b,c,d), pe(x), pval(x), p_yes(), p_no(); // 出力マクロ
 rpq<T>, inverse_priority_queue;           // 小さい順priority_queue
 dx,dy,dx8,dy8;                           // 4近傍/8近傍の方向配列
