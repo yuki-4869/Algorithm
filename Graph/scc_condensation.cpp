@@ -48,6 +48,17 @@ struct SCCResult {
     }
 };
 
+struct WeightedSCCResult : SCCResult {
+    vb nonzero_cycle;
+
+    bool has_nonzero_cycle() const {
+        for(bool x : nonzero_cycle){
+            if(x) return true;
+        }
+        return false;
+    }
+};
+
 SCCResult SCCDecomposition(const graph& g){
     ll n = g.size();
 
@@ -176,15 +187,68 @@ SCCResult SCCDecomposition(const graph& g){
     };
 }
 
+WeightedSCCResult SCCDecomposition(const Graph& g){
+    ll n = g.size();
+    graph unweighted(n);
+
+    rep(v,n){
+        unweighted[v].reserve(g[v].size());
+        for(auto [to,w] : g[v]){
+            unweighted[v].pb(to);
+        }
+    }
+
+    WeightedSCCResult res;
+    static_cast<SCCResult&>(res) = SCCDecomposition(unweighted);
+    res.nonzero_cycle.assign(res.K,false);
+
+    vector<__int128> potential(n,0);
+    vb seen(n,false);
+
+    rep(c,res.K){
+        ll root = res.groups[c][0];
+        queue<ll> q;
+        q.push(root);
+        seen[root] = true;
+
+        while(!q.empty()){
+            ll v = q.front();
+            q.pop();
+
+            for(auto [to,w] : g[v]){
+                if(res.cmp[to] != c) continue;
+                __int128 next = potential[v] + (__int128)w;
+
+                if(!seen[to]){
+                    seen[to] = true;
+                    potential[to] = next;
+                    q.push(to);
+                }
+                else if(potential[to] != next){
+                    res.nonzero_cycle[c] = true;
+                }
+            }
+        }
+    }
+
+    return res;
+}
+
 /*
 細かい注意点
-0-indexed、有向グラフ。入力はgraph=vector<vector<ll>>。
+0-indexed、有向グラフ。無重みはgraph=vector<vector<ll>>。
+重み付きはGraph=vector<vector<pair<ll,ll>>>で、辺は{行き先,重み}。重みはllの全範囲。
+空グラフ・自己ループ・多重辺に対応。入力は変更しない。構築O(N+M)、メモリO(N+M)。
 SCC番号は縮約DAGのトポロジカル順。異なる成分間の辺u->vではcmp[u]<cmp[v]。
 縮約DAGの順方向DPは成分番号の昇順、逆方向は降順に処理できる。
 cmpは頂点から成分番号、groupsは成分番号から頂点一覧。
+重み付き版はWeightedSCCResultを返し、SCCResultの全フィールド・関数も使える。
+nonzero_cycle[c]はSCC c に辺重みの総和が0でない有向閉路が存在するか。
+正閉路・負閉路の区別はしない。SCC内部の辺だけを使い、__int128のポテンシャルで判定。
+dag/rdagは重みを持たない縮約DAG。成分間の多重辺は従来どおり除去する。
 
 使える関数一覧
-auto scc = SCCDecomposition(g);  // gをSCC分解 O(N+M)
+auto scc = SCCDecomposition(g);  // graphならSCCResult、GraphならWeightedSCCResult O(N+M)
 
 scc.K;                           // 強連結成分の個数
 scc.cmp[v];                      // 頂点vが属するSCC番号
@@ -205,10 +269,19 @@ scc.cyclic[c];                   // SCC c が閉路を含むか
 scc.in_cycle(v);                 // 頂点vが有向閉路上にあるか
 scc.has_cycle();                 // グラフ全体に有向閉路があるか
 
+重み付き版で追加される情報・関数
+scc.nonzero_cycle[c];            // SCC c に非0閉路があるか O(1)
+scc.has_nonzero_cycle();         // 全体に非0閉路があるか O(K)
+
 基本の関数
 graph g={{1},{0,2},{}};
 auto scc = SCCDecomposition(g);
 auto connected = scc.same(0,1);               // true
 auto component = scc.cmp[2];                  // 1
 auto sources = scc.sources();                 // 入次数0のSCC一覧
+Graph weighted(3);
+weighted[0]={{1,2}}; weighted[1]={{0,-1},{2,5}};
+auto wscc = SCCDecomposition(weighted);
+auto nonzero = wscc.nonzero_cycle[wscc.cmp[0]]; // true: 0 -> 1 -> 0 の重みの和は1
+auto any_nonzero = wscc.has_nonzero_cycle();   // true
 */
