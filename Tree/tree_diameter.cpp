@@ -111,6 +111,10 @@ public:
         return farthest[v];
     }
 
+    vl get_centers() const{
+        return centers;
+    }
+
     bool on_diameter(ll v) const{
         return diameter_pos[v] != -1;
     }
@@ -229,6 +233,10 @@ public:
         return farthest[v];
     }
 
+    vl get_centers() const{
+        return centers;
+    }
+
     bool on_diameter(ll v) const{
         return diameter_pos[v] != -1;
     }
@@ -240,7 +248,10 @@ public:
 無重みはgraph=vector<vector<ll>>、重み付きはGraph=vector<vector<pair<ll,ll>>>。
 重み付き辺は{行き先,重み}、重みは非負、距離はlong longに収まること。
 radius/centersは頂点を中心とする半径/中心。直径経路は同長のうち1つ。
-構築・再構築O(N)、メモリO(N)。各結果フィールドと取得関数はO(1)。
+get_centers()は中心の頂点番号を昇順のvlとしてコピーして返す。未構築なら空。
+無重みの中心は1個または2個。重み0の辺がある木では3個以上の場合もある。
+構築・再構築O(N)、メモリO(N)。get_centers()は中心の個数Kに対してO(K)。
+それ以外の結果フィールド・取得関数はO(1)。
 
 使える関数一覧
 TreeDiameter td(g);           // graph = vector<vector<ll>>
@@ -259,6 +270,8 @@ td.diameter_pos[v];           // 直径上での位置、直径外なら -1
 td.on_diameter(v);            // v が今回求めた直径上なら true
 td.get_farthest_dist(v);      // v から最遠点までの距離
 td.get_farthest_vertex(v);    // v から最遠な頂点の1つ
+td.get_centers();             // 中心の頂点番号を昇順のvlで返す O(K)
+wtd.get_centers();            // 重み付き木の中心もすべて返す O(K)
 
 td.build(g);                  // 再構築 O(N)
 wtd.build(g);                 // 再構築 O(N)
@@ -269,4 +282,5 @@ TreeDiameter td(g);
 auto diameter = td.diameter;                 // 2
 auto path = td.path;                         // 直径上の頂点列
 auto distance = td.get_farthest_dist(1);      // 1
+auto centers = td.get_centers();             // {1}
 */
