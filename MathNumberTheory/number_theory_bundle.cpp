@@ -38,6 +38,19 @@ struct LinearSieve{
 
     vp factor(ll x)const{
         vp r;
+        if(x>n){
+            for(ll p:primes){
+                if(x<=n||p>x/p)break;
+                if(x%p!=0)continue;
+                ll e=0;
+                while(x%p==0)x/=p,e++;
+                r.pb({p,e});
+            }
+            if(x>n){
+                r.pb({x,1});
+                return r;
+            }
+        }
         while(x>1){
             ll p=mn[x],e=0;
             while(mn[x]==p) x/=p,e++;
@@ -188,7 +201,14 @@ vmi multiple_mobius(vmi a,const LinearSieve& S){
 
 /*
 細かい注意点
-1..Nを対象とする線形篩。照会のxは前計算範囲内、素因数分解はx>=1。
+N>=1として1..Nを前計算する線形篩。factor/divisors以外の素因数関連の照会は1<=x<=N。
+factorは1<=x<=LLONG_MAXに対応。x<=Nなら従来の最小素因数表を使う。
+x>NならN以下の素数で試し割りし、同じ素数で割り切った後の残りがN以下なら表へ切り替える。
+試し割りはp>残り/pでも打ち切り、最後の残りr>1は{r,1}として返す。
+x<=N^2では正しい素因数分解を保証。x>N^2では最後の因子が合成数の場合もある。
+結果は因子の昇順で、因子^指数の積は入力xに等しい。x=1は空。
+divisorsもfactorを使うため1<=x<=N^2なら全約数を列挙。それを超える場合は全列挙を保証しない。
+PはN以下の素数の個数、F(x)はx<=NならO(log x)、それ以外はO(P+log x)。
 変換用配列はN+1要素、添字0は未使用。変換は元配列を変更せず新配列を返す。
 factor_zobristは素因数集合の確率的ハッシュで、指数を区別しない。
 linear_sieveのLinearSieveと同名なので同時に貼らない。
@@ -201,13 +221,13 @@ ll spf(x)               最小素因数 / S.spf(x) / 最小素因数取得 / O(1
 ll prime_id(x)          素数の番号、非素数は-1 / S.prime_id(x) / ID取得 / O(1)
 ll prime_count(x)       x以下の素数個数 / S.prime_count(x) / 素数計数 / O(1)
 
-vp factor(x)            {{素因数,指数}} / S.factor(x) / 素因数分解 / O(log x)
+vp factor(x)            {{因子,指数}} / S.factor(x) / N^2まで完全分解、それ以上は残りを1因子にする / F(x)
 vl factor_list(x)       重複込み素因数列 / S.factor_list(x) / 12→{2,2,3} / O(log x)
 vl factor_unique(x)     重複なし昇順素因数列 / S.factor_unique(x) / 12→{2,3} / O(log x)
 ll rad(x)               重複なし素因数の積 / S.rad(x) / 12→6 / O(log x)
 ll factor_zobrist(x)    素因数集合のHash / S.factor_zobrist(x) / 指数無視 / O(log x)
 
-vl divisors(x)          約数を昇順列挙 / S.divisors(x) / 約数列挙 / O(τ(x)logτ(x))
+vl divisors(x)          約数を昇順列挙 / S.divisors(x) / N^2まで全列挙を保証 / F(x)+O(τ(x)logτ(x))
 ll omega(x)             異なる素因数数 / S.omega(x) / 12→2 / O(log x)
 ll Omega(x)             重複込み素因数数 / S.Omega(x) / 12→3 / O(log x)
 ll phi(x)               Eulerのφ関数 / S.phi(x) / φ(x) / O(log x)
@@ -226,6 +246,8 @@ vmi multiple_mobius(a,S) 倍数ゼータの逆変換 / multiple_mobius(a,S) / �
 基本の関数
 LinearSieve sieve(20);
 auto factors = sieve.factor(12);             // {{2,2},{3,1}}
+auto joined = sieve.factor(72);              // {{2,3},{3,2}}: 2で割り切ると残り9なので表へ切り替え
+auto partial = sieve.factor(899);            // {{899,1}}: 29*31は前計算範囲外なので残りを1因子にする
 auto phi = sieve.phi(12);                     // 4
 vmi counts(21,1); counts[0]=0;
 auto sums = divisor_zeta(counts,sieve);       // sums[12]==6
