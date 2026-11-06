@@ -75,6 +75,7 @@ struct FPS:vMint{
     using vMint::vMint;
     FPS(const vMint& a):vMint(a){}
     FPS(vMint&& a):vMint(move(a)){}
+    FPS(const vector<ll>& a):vMint(a.begin(),a.end()){}
 private:
     using C=Mint;
     static void precision(ll n){fps_detail::require(0<=n&&n<=C::mod());}
@@ -359,6 +360,7 @@ public:
 
 /*
 細かい注意点
+vlからFPSへの初期化・代入に対応。係数を選択した法へ変換してコピーし、元のvlは変更しない。
 法1000000007専用。Mint=atcoder::modint1000000007、vMint=vector<Mint>。
 基本テンプレートのll、vector等を使用する。code/codetではACLが利用可能。
 codecfでは <atcoder/convolution> のincludeを有効にする。ライブラリ本体にはincludeを置かない。
@@ -380,6 +382,7 @@ NTTを使う各中間畳み込みの必要長（両入力項数の和-1）は2^2
 vectorを継承し、size/resize、[]、begin/end、push_back、clear等は標準の意味で使える。
 
 使える関数一覧
+構築・代入 FPS f=a / f=a        vlの係数列から変換 / O(a.size())
 返り値         呼び出し方                  内容 / 計算量
 構築           FPS(), FPS(n), FPS(n,c)     空・n項の0・n項のc / O(1), O(n), O(n)
 構築           FPS{a,b,...}, FPS(l,r)      初期化リスト・反復子範囲 / O(項数)
@@ -415,6 +418,9 @@ N=f.size()、AとBは二つの多項式の項数。M(n)=O(n log n)は乗算の�
 v2(t)はtを割る2の指数。空入力・定数・小さい積や除算は直接処理する。
 
 基本の関数
+vl coefficients={1,2,3};
+FPS converted=coefficients;
+converted=coefficients;
 FPS f={1,2,3},g={1,1};
 FPS product=f*g;
 FPS derivative=f.diff(),integrated=derivative.integral();
