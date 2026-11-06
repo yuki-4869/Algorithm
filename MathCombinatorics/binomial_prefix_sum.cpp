@@ -65,7 +65,7 @@ dn>=0なら0<=dk<=dn、dn<0ならdn<=dk<=0。遷移後もN>=0。
 down系はN>=1でのみ使用する。K<0の累積和は0、K>NはNまでの和。
 
 使える関数一覧
-binom_prefix_sum(N,K);       // mint: 累積和 O(max(0,min(N,K)+1))、前計算後
+binom_prefix_sum(N,K);       // mint: 累積和 O(min(N,K))、前計算後。K<0ならO(1)
 BinomPrefixState state(N,K); // 同じ累積和で初期化
 state.value();              // mint: 現在値 O(1)
 state.down_keep();          // void: (N,K)->(N-1,K) O(1)

@@ -188,23 +188,23 @@ auto old=seg;で版をO(1)保存。set/applyはそのオブジェクトだけを
 読み取りはconstで、遅延伝播によるノードの変更・確保を行わない。mapping(f,e())!=e()にも対応する。
 0<=N<=LLONG_MAX。Nだけの構築はACL同様、全要素e()。区間和の長さはvector<S>(N,{0,1})等で初期化する。
 NODES>=1は共有全版のノード上限。必要な分だけ確保し、最後の共有先の破棄時に全て解放する。
-vector構築はN>0なら2*N-1個。各set/applyはO(log(N+1))個を追加し、個別には回収しない。
+vector構築はN>0なら2*N-1個。各set/applyはO(log N)個を追加し、個別には回収しない。
 コピー・代入は共有、ムーブ後の元は空。添字・容量・g(e())違反はNDEBUGでもメッセージなしで停止。
 gは副作用なしで単調であること。S/Fのコピーと演算・述語をO(1)として計算量を表記。追加include不要。
 
 使える関数一覧
 PersistentLazySegmentTree<S,op,e,F,mapping,composition,id,NODES> seg;    // 長さ0で構築 O(1)
 PersistentLazySegmentTree<S,op,e,F,mapping,composition,id,NODES> seg(N); // 全要素e()で構築 O(1)
-PersistentLazySegmentTree<S,op,e,F,mapping,composition,id,NODES> seg(v); // vector<S>から構築 O(N+1)
+PersistentLazySegmentTree<S,op,e,F,mapping,composition,id,NODES> seg(v); // vector<S>から構築 O(N)
 auto old=seg;                              // コピーで版を保存 O(1)
-void seg.set(p,x);                         // a[p]=x、この版のみ更新 償却O(log(N+1))
-S seg.get(p);                              // a[p]を返す O(log(N+1))
-S seg.prod(l,r);                           // [l,r)を添字順に集約 O(log(N+1))
+void seg.set(p,x);                         // a[p]=x、この版のみ更新 償却O(log N)
+S seg.get(p);                              // a[p]を返す O(log N)
+S seg.prod(l,r);                           // [l,r)を添字順に集約 O(log N)
 S seg.all_prod();                          // 全区間の集約を返す O(1)
-void seg.apply(p,f);                       // a[p]=mapping(f,a[p]) 償却O(log(N+1))
-void seg.apply(l,r,f);                     // [l,r)の各要素にfを適用 償却O(log(N+1))
-ll seg.max_right(l,g);                     // g(prod(l,r))が真となる最大r O(log(N+1))
-ll seg.min_left(r,g);                      // g(prod(l,r))が真となる最小l O(log(N+1))
+void seg.apply(p,f);                       // a[p]=mapping(f,a[p]) 償却O(log N)
+void seg.apply(l,r,f);                     // [l,r)の各要素にfを適用 償却O(log N)
+ll seg.max_right(l,g);                     // g(prod(l,r))が真となる最大r O(log N)
+ll seg.min_left(r,g);                      // g(prod(l,r))が真となる最小l O(log N)
 ll seg.max_right<g>(l);                    // 関数ポインタ版、同じ動作・計算量
 ll seg.min_left<g>(r);                     // 関数ポインタ版、同じ動作・計算量
 ll seg.size();                            // 配列長を返す O(1)

@@ -75,10 +75,10 @@ fps.cppまたはfps_mod1000000007.cppを先に貼る。FPSMint/FPSVectorは選�
 無効な引数はNDEBUG時も標準エラーを出さず停止する。
 
 使える関数一覧
-構造体    FPSPointSet T(x)     固定評価点の積木を構築 / O(M(N)log(N+1))、メモリO(Nlog(N+1))
+構造体    FPSPointSet T(x)     固定評価点の積木を構築 / O(M(N)log N)、メモリO(N log N)
 FPS       T.product()          Π(X-x[i])のコピー / O(N)
-FPSVector T.eval(f)            点ごとのf(x[i]) / O(M(D+N)log(D+N+1))
-FPS       T.interpolate(y)     次数<Nの補間 / O(M(N)log(N+1))、初回は逆元表も構築
+FPSVector T.eval(f)            点ごとのf(x[i]) / O(M(D+N)log(D+N))
+FPS       T.interpolate(y)     次数<Nの補間 / O(M(N)log N)、初回は逆元表も構築
 FPSVector multipoint_eval(f,x) 一度きりの多点評価 / 構築+eval
 FPS       interpolate(x,y)     一度きりの補間 / 構築+interpolate
 Nは評価点数、Dは入力多項式の項数。Mは選択したFPSの乗算計算量。

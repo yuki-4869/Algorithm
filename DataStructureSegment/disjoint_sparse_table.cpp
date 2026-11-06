@@ -49,8 +49,8 @@ buildには旧表の解放・上書き分の時間も加わり、確保済み容
 
 使える関数一覧
 DisjointSparseTable<S,op,e> st;                // 空列で構築 O(1)
-DisjointSparseTable<S,op,e> st(v);             // 列vで構築 O(N log(N+1))、領域も同じ
-void st.build(v);                             // 列vで再構築 O(N log(N+1))
+DisjointSparseTable<S,op,e> st(v);             // 列vで構築 O(N log N)、領域も同じ
+void st.build(v);                             // 列vで再構築 O(N log N)
 int st.size();                               // 要素数を返す O(1)
 S st.get(i);                                 // i番目の値を返す O(1)
 S st.prod(l,r);                              // [l,r)の集約値を返す O(1)
@@ -64,6 +64,6 @@ auto sum=st.prod(1,4);                        // 6 O(1)
 auto value=st.get(2);                         // 4 O(1)
 auto total=st.all_prod();                     // 14 O(1)
 auto empty=st.prod(3,3);                      // 0 O(1)
-st.build(vl{2,7,1});                          // 列を作り直す O(N log(N+1))
+st.build(vl{2,7,1});                          // 列を作り直す O(N log N)
 auto n=st.size();                            // 3 O(1)
 */

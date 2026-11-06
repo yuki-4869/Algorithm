@@ -33,13 +33,13 @@ struct BinaryLifting{
 細かい注意点
 0-indexed。to[v]は1回移動先、cost[v]はその移動の集約値。同じ長さの配列を渡す。
 全移動先は0..N-1。opは結合則を満たし、eは単位元。非可換な演算にも対応。
-kはunsigned long long。64段を固定で走査するため、構築O(64N)、各照会O(64)。
+kはunsigned long long。64段を固定で走査するため、構築O(N)、各照会O(1)。
 
 使える関数一覧
-BinaryLifting<T> db(to,cost,e,op); // 構築 O(64N)
-db.query(v,k);                    // pair<ll,T>: k回後の頂点と集約値 O(64)
-db.jump(v,k);                     // ll: k回後の頂点 O(64)
-db.prod(v,k);                     // T: k回分の集約値 O(64)
+BinaryLifting<T> db(to,cost,e,op); // 構築 O(N)
+db.query(v,k);                    // pair<ll,T>: k回後の頂点と集約値 O(1)
+db.jump(v,k);                     // ll: k回後の頂点 O(1)
+db.prod(v,k);                     // T: k回分の集約値 O(1)
 
 基本の関数
 vl to={1,2,0}, cost={2,3,5};

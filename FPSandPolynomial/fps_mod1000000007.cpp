@@ -392,9 +392,9 @@ FPS            f.integral()               積分定数0の積分 / O(N)
 FPS            f.inv(n)                   逆数 mod X^n / O(M(n))
 FPS            f.log(n)                   対数 mod X^n / O(M(n))
 FPS            f.exp(n)                   指数 mod X^n / O(M(n))
-FPS            f.pow(k,n)                 k乗 mod X^n / O(M(n)+log(k+1))
-FPS            f.sqrt(n)                  平方根 mod X^n / O(M(n)+log(mod)+v2(mod-1)^2)
-pair<bool,Mint> FPS::mod_sqrt(a)        定数の平方根の有無と値 / O(log(mod)+v2(mod-1)^2)
+FPS            f.pow(k,n)                 k乗 mod X^n / O(M(n)+log k)
+FPS            f.sqrt(n)                  平方根 mod X^n / O(M(n)+log mod+v2(mod-1)^2)
+pair<bool,Mint> FPS::mod_sqrt(a)        定数の平方根の有無と値 / O(log mod+v2(mod-1)^2)
 pair<FPS,FPS>  f.divmod(g)                多項式の商・余り / O(M(A+B))
 FPS            f.taylor_shift(c)          f(X+c)、項数を保持 / O(M(N))
 Mint           f.eval(x)                  Horner法でf(x) / O(N)
@@ -410,8 +410,8 @@ FPS&           f+=c, f-=c                 定数項を自己更新 / O(1)
 FPS&           f*=c, f/=c                 スカラーで自己更新 / O(N)
 FPS&           f<<=k, f>>=k               シフトして自己更新 / O(N+k), O(N)
 vMint          convolution_1e9p7(a,b)    畳み込み / O(M(A+B))
-N=f.size()、AとBは二つの多項式の項数。M(n)=O(n log(n+1))は乗算の上界。
-法を固定した体演算での計算量。スカラーの逆元計算にはO(log(mod))が加わる。
+N=f.size()、AとBは二つの多項式の項数。M(n)=O(n log n)は乗算の上界。
+法を固定した体演算での計算量。スカラーの逆元計算にはO(log mod)が加わる。
 v2(t)はtを割る2の指数。空入力・定数・小さい積や除算は直接処理する。
 
 基本の関数

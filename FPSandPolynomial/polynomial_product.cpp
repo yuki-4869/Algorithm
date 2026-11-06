@@ -54,8 +54,8 @@ product_linearは少数の一次因子を直接掛け、それ以上は平衡分
 各NTT長は選んだFPSの制限内であること。
 
 使える関数一覧
-FPS polynomial_product(fs)    多項式の総積 / O(Slog^2(S+1))
-FPS product_linear(a)         Π(X-a[i]) / O(Nlog^2(N+1))
+FPS polynomial_product(fs)    多項式の総積 / O(S log^2 S)
+FPS product_linear(a)         Π(X-a[i]) / O(N log^2 N)
 Sは入力の係数数の総和、Nは根の個数。
 
 基本の関数

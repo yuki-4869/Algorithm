@@ -535,51 +535,51 @@ Type seg(v);                                   // 返り値なし: vから構築
 Type seg(other);                               // 返り値なし: 独立なコピーを構築 O(N_other)
 Type seg(std::move(other));                    // 返り値なし: 木を移し、otherを長さ0にする O(1)
 seg = other;                                   // Type&: segへの参照。独立なコピーで上書き O(N+N_other)
-seg = std::move(other);                        // Type&: segへの参照。木を移し、otherを長さ0にする O(N+1)
+seg = std::move(other);                        // Type&: segへの参照。木を移し、otherを長さ0にする O(N)
 
 // 全型共通API（SとFの内容は上表。Sを直接setする場合は葉のメタデータも正しく設定）
 seg.size();                                    // int: 配列長Nを返す O(1)
 seg.empty();                                   // bool: 配列長0ならtrue O(1)
-seg.set(i,s);                                  // void: 点iの集約情報をS=sに変更 O(log(N+1))
-seg.get(i);                                    // S: 点iの情報を返す（必ずしも整数そのものではない） O(log(N+1))
-seg.prod(l,r);                                 // S: [l,r)の集約情報を返す O(log(N+1))
+seg.set(i,s);                                  // void: 点iの集約情報をS=sに変更 O(log N)
+seg.get(i);                                    // S: 点iの情報を返す（必ずしも整数そのものではない） O(log N)
+seg.prod(l,r);                                 // S: [l,r)の集約情報を返す O(log N)
 seg.all_prod();                                // S: 配列全体の集約情報を返す O(1)
-seg.apply(i,f);                                // void: 点iに更新F=fを作用 O(log(N+1))
-seg.apply(l,r,f);                              // void: [l,r)に更新F=fを作用 O(log(N+1))
-seg.max_right(l,g);                            // int: g(prod(l,r))を保つ最大rを返す O(log(N+1))
-seg.min_left(r,g);                             // int: g(prod(l,r))を保つ最小lを返す O(log(N+1))
-seg.max_right<g>(l);                           // int: 関数ポインタ版のmax_right O(log(N+1))
-seg.min_left<g>(r);                            // int: 関数ポインタ版のmin_left O(log(N+1))
+seg.apply(i,f);                                // void: 点iに更新F=fを作用 O(log N)
+seg.apply(l,r,f);                              // void: [l,r)に更新F=fを作用 O(log N)
+seg.max_right(l,g);                            // int: g(prod(l,r))を保つ最大rを返す O(log N)
+seg.min_left(r,g);                             // int: g(prod(l,r))を保つ最小lを返す O(log N)
+seg.max_right<g>(l);                           // int: 関数ポインタ版のmax_right O(log N)
+seg.min_left<g>(r);                            // int: 関数ポインタ版のmin_left O(log N)
 
 // 値だけを渡すset（集約型Sのメタデータを自動設定）
-seg.set(i,x);                                  // void: 点iを値xに変更 O(log(N+1))
+seg.set(i,x);                                  // void: 点iを値xに変更 O(log N)
 // 全ての具体型で利用可能。法付き型はMint、その他はlong longを渡す。
 
 // 加算・代入型の便利API（型が対応する操作だけを利用）
-seg.add(l,r,x);                                // void: Add系・Affine系の[l,r)にx加算 O(log(N+1))
-seg.assign(l,r,x);                             // void: Assign系・Affine系の[l,r)をxに代入 O(log(N+1))
-seg.apply(i,x);                                // void: Assign系の点iを値xに代入 O(log(N+1))
-seg.apply(l,r,x);                              // void: Assign系の[l,r)を値xに代入 O(log(N+1))
+seg.add(l,r,x);                                // void: Add系・Affine系の[l,r)にx加算 O(log N)
+seg.assign(l,r,x);                             // void: Assign系・Affine系の[l,r)をxに代入 O(log N)
+seg.apply(i,x);                                // void: Assign系の点iを値xに代入 O(log N)
+seg.apply(l,r,x);                              // void: Assign系の[l,r)を値xに代入 O(log N)
 // 生の代入写像はLazyAssignF{x,true}。LazyAssignF{}は何もしない写像。
-seg.chmin(l,r,x);                              // void: LazyChminMaxでA[i]=min(A[i],x) O(log(N+1))
-seg.chmax(l,r,x);                              // void: LazyChmaxMinでA[i]=max(A[i],x) O(log(N+1))
-seg.min(l,r);                                  // long long: Min/MinMax/Stats型の区間最小値 O(log(N+1))
-seg.max(l,r);                                  // long long: Max/MinMax/Stats型の区間最大値 O(log(N+1))
-seg.sum(l,r);                                  // long longまたはMint: AddSum/AssignSum/Affine/Stats/AP型の区間和 O(log(N+1))
+seg.chmin(l,r,x);                              // void: LazyChminMaxでA[i]=min(A[i],x) O(log N)
+seg.chmax(l,r,x);                              // void: LazyChmaxMinでA[i]=max(A[i],x) O(log N)
+seg.min(l,r);                                  // long long: Min/MinMax/Stats型の区間最小値 O(log N)
+seg.max(l,r);                                  // long long: Max/MinMax/Stats型の区間最大値 O(log N)
+seg.sum(l,r);                                  // long longまたはMint: AddSum/AssignSum/Affine/Stats/AP型の区間和 O(log N)
 
 // 一次変換（LazyAffineStats / LazyAffineSum / LazyAffineSumT<Mint>）
-seg.affine(l,r,a,b);                           // void: A[i]=a*A[i]+bを適用 O(log(N+1))
-seg.mul(l,r,x);                                // void: A[i]をx倍 O(log(N+1))
+seg.affine(l,r,a,b);                           // void: A[i]=a*A[i]+bを適用 O(log N)
+seg.mul(l,r,x);                                // void: A[i]をx倍 O(log N)
 // addはa=1、assignはa=0の一次変換。整数Stats型は負のaにも対応。
 
 // 二進列（LazyFlipSum / LazyFlipInv。初期値・setの値は0/非0で0/1に正規化）
-seg.flip(l,r);                                 // void: [l,r)の0/1を反転 O(log(N+1))
-seg.ones(l,r);                                 // long long: LazyFlipSumで区間の1の個数を返す O(log(N+1))
-seg.inversions(l,r);                           // long long: LazyFlipInvでi<jかつ(A[i],A[j])=(1,0)の組数 O(log(N+1))
+seg.flip(l,r);                                 // void: [l,r)の0/1を反転 O(log N)
+seg.ones(l,r);                                 // long long: LazyFlipSumで区間の1の個数を返す O(log N)
+seg.inversions(l,r);                           // long long: LazyFlipInvでi<jかつ(A[i],A[j])=(1,0)の組数 O(log N)
 
 // 等差数列加算（LazyAPAddSum）
-seg.add_linear(l,r,a,b);                       // void: A[i]+=a*i+b（iは配列全体の添字） O(log(N+1))
-seg.add_ap(l,r,a,d);                           // void: A[l+j]+=a+d*j（jは0始まり） O(log(N+1))
+seg.add_linear(l,r,a,b);                       // void: A[i]+=a*i+b（iは配列全体の添字） O(log N)
+seg.add_ap(l,r,a,d);                           // void: A[l+j]+=a+d*j（jは0始まり） O(log N)
 
 // 公開している葉配列への変換ヘルパー（必要な場合のみ使用）
 LazyAddArgMin::cv(v);                          // vector<S>: {値,元の添字}へ変換 O(N)

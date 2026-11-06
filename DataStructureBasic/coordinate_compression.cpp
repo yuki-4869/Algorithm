@@ -190,36 +190,36 @@ U<=INT_MAX。保持メモリはvectorのcapacityに比例、変換結果の追�
 使える関数一覧
 // 構築・コピー・ムーブ（コンストラクタには返り値はない）
 Zip<T> z;                                     // 構築済みの空の圧縮表を作る O(1)
-Zip<T> z(A);                                  // Aをソート・重複除去して構築 O(M log(M+1))
-Zip<T> z{a,b,c};                              // 初期化子リストから構築 O(M log(M+1))
+Zip<T> z(A);                                  // Aをソート・重複除去して構築 O(M log M)
+Zip<T> z{a,b,c};                              // 初期化子リストから構築 O(M log M)
 Zip<T,Compare> z(cmp);                        // 比較器を指定し、構築済みの空の表を作る O(1)
-Zip<T,Compare> z(A,cmp);                      // 比較器を指定してAから構築 O(M log(M+1))
-Zip<T,Compare> z({a,b,c},cmp);                // 比較器付き初期化子リストから構築 O(M log(M+1))
+Zip<T,Compare> z(A,cmp);                      // 比較器を指定してAから構築 O(M log M)
+Zip<T,Compare> z({a,b,c},cmp);                // 比較器付き初期化子リストから構築 O(M log M)
 Zip<T> z(other);                              // 独立なコピーを作る O(N2)
 Zip<T> z(std::move(other));                   // 登録値を移し、otherを構築済みの空表にする O(1)
 z = other;                                    // Zip&: zへの参照。独立なコピーで上書き O(N+N2)
-z = std::move(other);                         // Zip&: zへの参照。登録値を移し、otherを空にする O(N+1)
+z = std::move(other);                         // Zip&: zへの参照。登録値を移し、otherを空にする O(N)
 
 // 値の登録・構築・状態管理
 z.add(x);                                     // void: xを追加し、未構築状態にする ならしO(1)
 z.add(A);                                     // void: Aの全値を追加し、未構築状態にする ならしO(M)
 z.add({a,b,c});                               // void: 初期化子リストの全値を追加 ならしO(M)
 z.reserve(n);                                 // void: n個分の容量を確保（構築状態は変わらない） O(N)以下
-z.build();                                    // void: ソート・重複除去して構築 O(N log(N+1))、構築済みならO(1)
-z.assign(A);                                  // void: 全値をAに置き換え、構築まで行う O(N+M log(M+1))
-z.assign({a,b,c});                            // void: 初期化子リストに置き換えて構築 O(N+M log(M+1))
+z.build();                                    // void: ソート・重複除去して構築 O(N log N)、構築済みならO(1)
+z.assign(A);                                  // void: 全値をAに置き換え、構築まで行う O(N+M log M)
+z.assign({a,b,c});                            // void: 初期化子リストに置き換えて構築 O(N+M log M)
 z.clear();                                    // void: 全値を削除し、構築済みの空表にする O(N)
 z.ready();                                    // bool: 構築済みならtrue O(1)
 z.pending_size();                             // size_t: 現在の登録配列の長さ（未構築なら重複を含む） O(1)
 
 // 値から番号・境界を取得（構築済みで使用）
-z.get(x);                                     // int: lower(x)と同じ。未登録値にも挿入位置を返す O(log(U+1))
-z.lower(x);                                   // int: 比較順序でxより前の値の種類数 [0,U] O(log(U+1))
-z.upper(x);                                   // int: xより前または同値の種類数 [0,U] O(log(U+1))
-z.index(x);                                   // int: 登録済みなら圧縮番号、未登録なら-1 O(log(U+1))
-z.contains(x);                                // bool: xと比較器で同値の登録値があればtrue O(log(U+1))
-z.equal_range(x);                             // pair<int,int>: {lower(x),upper(x)}を返す O(log(U+1))
-z.count_range(l,r);                           // int: 比較順で[l,r)に入る登録値の種類数 O(log(U+1))
+z.get(x);                                     // int: lower(x)と同じ。未登録値にも挿入位置を返す O(log U)
+z.lower(x);                                   // int: 比較順序でxより前の値の種類数 [0,U] O(log U)
+z.upper(x);                                   // int: xより前または同値の種類数 [0,U] O(log U)
+z.index(x);                                   // int: 登録済みなら圧縮番号、未登録なら-1 O(log U)
+z.contains(x);                                // bool: xと比較器で同値の登録値があればtrue O(log U)
+z.equal_range(x);                             // pair<int,int>: {lower(x),upper(x)}を返す O(log U)
+z.count_range(l,r);                           // int: 比較順で[l,r)に入る登録値の種類数 O(log U)
 
 // 番号から値・圧縮表を取得（構築済みで使用）
 z[i];                                       // const_reference: 番号iの元の値 O(1)、0<=i<U
@@ -232,15 +232,15 @@ z.size();                                     // int: 異なる値の個数Uを�
 z.empty();                                    // bool: 空の圧縮表ならtrue O(1)
 
 // 配列の圧縮・復元（構築済みで使用）
-z.zip(A);                                     // vector<int>: 各値のlower位置を返す（未登録値も許可） O(M log(U+1))
-z.zip_exact(A);                               // vector<int>: 各登録値の番号。全値が登録済みであること O(M log(U+1))
+z.zip(A);                                     // vector<int>: 各値のlower位置を返す（未登録値も許可） O(M log U)
+z.zip_exact(A);                               // vector<int>: 各登録値の番号。全値が登録済みであること O(M log U)
 z.unzip(ids);                                 // vector<T>: 番号列を代表値へ復元、0<=i<U O(M)
 
 // 表の構築も行う一括関数（追加メモリO(M)）
-coordinate_zip::zip(A);                       // vector<int>: Aを0-indexedに圧縮 O(M log(M+1))
-coordinate_zip::zip(A,cmp);                   // vector<int>: 比較器を指定してAを圧縮 O(M log(M+1))
-coordinate_zip::zip2d(P);                     // vector<pair<int,int>>: x,yを独立に圧縮 O(M log(M+1))
-coordinate_zip::zip2d(P,cx,cy);               // vector<pair<int,int>>: 各軸の比較器を指定して圧縮 O(M log(M+1))
+coordinate_zip::zip(A);                       // vector<int>: Aを0-indexedに圧縮 O(M log M)
+coordinate_zip::zip(A,cmp);                   // vector<int>: 比較器を指定してAを圧縮 O(M log M)
+coordinate_zip::zip2d(P);                     // vector<pair<int,int>>: x,yを独立に圧縮 O(M log M)
+coordinate_zip::zip2d(P,cx,cy);               // vector<pair<int,int>>: 各軸の比較器を指定して圧縮 O(M log M)
 
 基本の関数
 vector<ll> A={30,10,30,20};

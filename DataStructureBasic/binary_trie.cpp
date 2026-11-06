@@ -128,16 +128,16 @@ get_prefix_node(prefix,digits)は上位digits桁を検索。digits=0は根を表
 使える関数一覧
 BinaryTrie bt;構築
 
-void insert(x) xを1個追加 O(logA)
-void erase(x) xを1個削除 O(logA)
-ll count(x) xの個数を返す O(logA)
-ll min_xor(x) 登録値vに対するmin(v xor x)を返す O(logA)
-ll max_xor(x) 登録値vに対するmax(v xor x)を返す O(logA)
-ll kth(k) 値の昇順で0-indexed k番目を返す O(logA)
+void insert(x) xを1個追加 O(log A)
+void erase(x) xを1個削除 O(log A)
+ll count(x) xの個数を返す O(log A)
+ll min_xor(x) 登録値vに対するmin(v xor x)を返す O(log A)
+ll max_xor(x) 登録値vに対するmax(v xor x)を返す O(log A)
+ll kth(k) 値の昇順で0-indexed k番目を返す O(log A)
 void xor_all(x) 全要素にxor xを作用させる O(1)
 ll size() 登録されている要素数を返す O(1)
 
-ll get_node(x) 現在の値xに対応する葉Nodeの番号を返す。存在しなければ-1 O(logA)
+ll get_node(x) 現在の値xに対応する葉Nodeの番号を返す。存在しなければ-1 O(log A)
 ll child(v,bit) Node vから保存値の次の桁がbitの子Nodeの番号を返す。存在しなければ-1 O(1)
 ll node_count(v) Node v以下の要素数を返す。v==-1なら0 O(1)
 ll get_prefix_node(prefix,digits) 現在の値の上位digits桁がprefixのNodeの番号を返す。存在しなければ-1 O(digits)

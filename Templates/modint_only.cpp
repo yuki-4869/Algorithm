@@ -136,7 +136,7 @@ ACLのsegtree/lazy_segtreeを使う場合は対応ヘッダーを追加する。
 使える関数一覧
 Pow2[i];                                  // ll: 2^i、0<=i<=60 O(1)
 dijkstra(const graph& g,ll s / const vl& starts / initializer_list<ll> starts); // vl: 重み1の最短距離 O(N+M+K)
-dijkstra(const Graph& g,ll s / const vl& starts / initializer_list<ll> starts); // vl: 非負重みの最短距離 O(N+K+M log(M+2))
+dijkstra(const Graph& g,ll s / const vl& starts / initializer_list<ll> starts); // vl: 非負重みの最短距離 O(N+K+M log M)
 vec2(n,m,x), vec3(n,m,l,x), vec4(a,b,c,d,x); // 多次元vector生成 O(要素数)
 sz(v);                                     // ll: 要素数 O(1)
 chmin(a,b), chmax(a,b);                    // bool: 更新したか O(1)

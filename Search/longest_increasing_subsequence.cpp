@@ -35,7 +35,7 @@ ending_length[i]は位置iで終わる最長長。a[0..i]全体の最長長は�
 空ならlength=0、indicesとending_lengthは空。返り値は入力と独立した値。
 
 使える関数一覧
-LISResult longest_increasing_subsequence(a,strict=true); // 最長部分列を復元 O(1+N log(N+1))時間・追加O(N+1)領域
+LISResult longest_increasing_subsequence(a,strict=true); // 最長部分列を復元 O(N log N)時間・追加O(N)領域
 result.length;           // ll: 最長長 O(1)
 result.indices;          // vl: 長さlengthの復元添字、1要素の参照O(1)、全走査O(length)
 result.ending_length;    // vl: 各位置で終わる最長長、1要素の参照O(1)、全走査O(N)

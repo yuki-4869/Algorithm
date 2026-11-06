@@ -557,25 +557,25 @@ Type seg(v);                                   // 返り値なし: 配列vから
 Type seg(other);                               // 返り値なし: 独立なコピーを構築 O(N_other)
 Type seg(std::move(other));                    // 返り値なし: 木を移し、otherを長さ0にする O(1)
 seg = other;                                   // Type&: segへの参照。独立なコピーで上書き O(N+N_other)
-seg = std::move(other);                        // Type&: segへの参照。木を移し、otherを長さ0にする O(N+1)
+seg = std::move(other);                        // Type&: segへの参照。木を移し、otherを長さ0にする O(N)
 
 // 全型共通API
 seg.init(v);                                   // void: vで木を作り直す O(N)
 seg.size();                                    // int: 配列長Nを返す O(1)
 seg.empty();                                   // bool: 配列長0ならtrue O(1)
 seg.clear();                                   // void: 全ノードを破棄し長さ0にする O(N)、確保容量は残る場合あり
-seg.set(i,x);                                  // void: A[i]=xに変更 O(log(N+1))
-seg.get(i);                                    // long long: A[i]を返す O(log(N+1))
-seg.prod(l,r);                                 // Node: [l,r)の{sum,mn,mx,len}等を返す O(log(N+1))
-seg.sum(l,r);                                  // long long: [l,r)の和を返す O(log(N+1))
-seg.min(l,r);                                  // long long: [l,r)の最小値を返す O(log(N+1))
-seg.max(l,r);                                  // long long: [l,r)の最大値を返す O(log(N+1))
+seg.set(i,x);                                  // void: A[i]=xに変更 O(log N)
+seg.get(i);                                    // long long: A[i]を返す O(log N)
+seg.prod(l,r);                                 // Node: [l,r)の{sum,mn,mx,len}等を返す O(log N)
+seg.sum(l,r);                                  // long long: [l,r)の和を返す O(log N)
+seg.min(l,r);                                  // long long: [l,r)の最小値を返す O(log N)
+seg.max(l,r);                                  // long long: [l,r)の最大値を返す O(log N)
 seg.all_sum();                                 // long long: 配列全体の和を返す O(1)
 
 // 型別の更新API（いずれも返り値はvoid）
 seg.mod(l,r,x);                                // SegMod: A[i]%=x。x>0。単発最悪O(N)、変化しない節点は省略
 seg.divide(l,r,d);                             // SegDiv: A[i]=floor(A[i]/d)。d>0。単発最悪O(N)、d=1ならO(1)
-seg.assign(l,r,x);                             // SegDiv: [l,r)をxに代入 O(log(N+1))
+seg.assign(l,r,x);                             // SegDiv: [l,r)をxに代入 O(log N)
 seg.sqrt(l,r);                                 // SegSqrt: A[i]=floor(sqrt(A[i]))。単発最悪O(N)、0/1節点は省略
 seg.bit_and(l,r,x);                            // SegBitwiseBeats: A[i]&=x。単発最悪O(N)、共通ビットの変化は一括適用
 seg.bit_or(l,r,x);                             // SegBitwiseBeats: A[i]|=x。単発最悪O(N)、共通ビットの変化は一括適用

@@ -130,7 +130,7 @@ Bernoulli数はX/(exp(X)-1)の定義、B_1=-1/2。Bell(0)=partition(0)=1。
 FPSMint   lagrange_consecutive(y,x)      連続点0..N-1からの評価 / O(N)
 FPSVector binomial_transform(a)         二項変換 / O(M(N))
 FPSVector inverse_binomial_transform(a) 逆二項変換 / O(M(N))
-FPSVector stirling2_row(n)              S(n,0..n) / O(M(n)+nlog(n+1))
+FPSVector stirling2_row(n)              S(n,0..n) / O(M(n)+n log n)
 FPSVector stirling1_signed(n)           符号付き第一種Stirling数 / O(M(n))
 FPSVector stirling1_unsigned(n)         符号なし第一種Stirling数 / O(M(n))
 FPSVector bernoulli_numbers(n)          B_0..B_n / O(M(n))

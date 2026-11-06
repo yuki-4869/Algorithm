@@ -40,7 +40,7 @@ keep_collinear=falseは辺の途中の点を除外、trueは境界上の入力�
 浮動小数点・誤差判定・点の動的追加削除には非対応。
 
 使える関数一覧
-vector<pll> convex_hull(points,keep_collinear=false); // 凸包の座標列を返す O(1+N log(N+1))時間・O(N+1)領域
+vector<pll> convex_hull(points,keep_collinear=false); // 凸包の座標列を返す O(N log N)時間・O(N)領域
 
 基本の関数
 vector<pll> points={{0,0},{1,0},{2,0},{2,2},{0,2},{1,1},{0,0}};

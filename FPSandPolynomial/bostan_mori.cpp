@@ -74,8 +74,8 @@ berlekamp_masseyは既知の有限列に一致する最短漸化式の係数を�
 無効な引数はNDEBUG時も標準エラーを出さず停止する。
 
 使える関数一覧
-FPSMint   bostan_mori(P,Q,n)       有理式の第n係数 / O(M(K)log(n+1))、初回多項式除算は別途
-FPSMint   linear_recurrence(a,c,n) k階漸化式の第n項 / O(M(k)log(n+1))
+FPSMint   bostan_mori(P,Q,n)       有理式の第n係数 / O(M(K)log n)、初回多項式除算は別途
+FPSMint   linear_recurrence(a,c,n) k階漸化式の第n項 / O(M(k)log n)
 FPSVector berlekamp_massey(s)      有限列に合う最短漸化式 / O(N^2)
 Kは処理するP,Qの項数の最大、M(K)はFPS乗算の計算量。
 

@@ -281,6 +281,7 @@ struct LiChaoTree {
 
 /*
 細かい注意点
+計算量のC=R-L+1は定義域の整数座標数。
 整数座標用。座標区間とadd_segmentの区間はいずれも両端を含む[L,R]。
 trueが最小値、falseが最大値。queryのxは構築時の[L,R]内。
 有効な直線がないxでは、最小値版はnumeric_limits<T>::max()、最大値版はlowest()。
@@ -290,13 +291,13 @@ a*x+bがTの範囲内に収まること。
 LiChaoTree<ll> cht(L,R);                       // L<=x<=R 上で最小値を管理
 LiChaoTree<ll,false> cht(L,R);                 // L<=x<=R 上で最大値を管理
 
-cht.add_line(a,b);                             // y=ax+b を全区間に追加 O(log(R-L+1))
+cht.add_line(a,b);                             // y=ax+b を全区間に追加 O(log C)
 
 cht.add_segment(a,b,l,r);                      // y=ax+b を l<=x<=r のみに追加
-                                                // O(log^2(R-L+1))
+                                                // O(log^2 C)
 
 cht.query(x);                                  // x における登録済み直線の最小値/最大値
-                                                // O(log(R-L+1))
+                                                // O(log C)
 
 LiChaoTree<ll>::Line f(a,b);                   // 直線 y=ax+b
 cht.add_line(f);                               // Line 型でも追加可能

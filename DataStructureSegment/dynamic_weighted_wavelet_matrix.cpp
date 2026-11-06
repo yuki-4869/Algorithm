@@ -549,7 +549,7 @@ public:
 点更新に使うキーはuniverseへ事前登録する。keyとvalは別の列。
 kthのkは0-indexed。同一キーのsum_k_smallestは元の添字順で選ぶ。
 lower_bound_by_sumは区間内のvalが全て非負の場合だけ使う。
-通常操作O(log(sigma) log N)、range_sum O(log N)。和は値型に収まること。
+通常操作O(log sigma log N)、range_sum O(log N)。和は値型に収まること。
 
 使える関数一覧
 DynamicWeightedWaveletMatrix<ll,ll> wm(key,val,universe);

@@ -238,10 +238,10 @@ S.mn[x]                 xの最小素因数
 S.id[p]                 素数pの0-indexed番号、非素数は-1
 S.pi[x]                 x以下の素数個数
 
-vmi divisor_zeta(a,S)    b[x]=Σ_{d|x}a[d] / divisor_zeta(a,S) / 約数和 / O(N loglogN)
-vmi divisor_mobius(a,S)  約数ゼータの逆変換 / divisor_mobius(a,S) / 復元 / O(N loglogN)
-vmi multiple_zeta(a,S)   b[x]=Σ_{x|m}a[m] / multiple_zeta(a,S) / 倍数和 / O(N loglogN)
-vmi multiple_mobius(a,S) 倍数ゼータの逆変換 / multiple_mobius(a,S) / 復元 / O(N loglogN)
+vmi divisor_zeta(a,S)    b[x]=Σ_{d|x}a[d] / divisor_zeta(a,S) / 約数和 / O(N log log N)
+vmi divisor_mobius(a,S)  約数ゼータの逆変換 / divisor_mobius(a,S) / 復元 / O(N log log N)
+vmi multiple_zeta(a,S)   b[x]=Σ_{x|m}a[m] / multiple_zeta(a,S) / 倍数和 / O(N log log N)
+vmi multiple_mobius(a,S) 倍数ゼータの逆変換 / multiple_mobius(a,S) / 復元 / O(N log log N)
 
 基本の関数
 LinearSieve sieve(20);

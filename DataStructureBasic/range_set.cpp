@@ -193,33 +193,33 @@ TINFはcovered_byの互換返り値用。座標制限や内部番兵ではない
 使える関数一覧
 // 構築・コピー・ムーブ（コンストラクタには返り値はない）
 RangeSet<T, Count> rs;                        // 空集合で初期化 O(1)
-RangeSet<T, Count> rs{{a,b},{c,d}};           // M個の区間から構築、重複・隣接を統合 O(M log(M+1))
+RangeSet<T, Count> rs{{a,b},{c,d}};           // M個の区間から構築、重複・隣接を統合 O(M log M)
 RangeSet<T, Count> rs(other);                 // 独立なコピーを構築 O(K2)
 RangeSet<T, Count> rs(std::move(other));      // 集合を移し、otherを空にする O(1)
 rs = other;                                   // RangeSet&: rsへの参照。独立なコピーで上書き O(K+K2)
-rs = std::move(other);                        // RangeSet&: rsへの参照。集合を移し、otherを空にする O(K+1)
+rs = std::move(other);                        // RangeSet&: rsへの参照。集合を移し、otherを空にする O(K)
 
 // 追加・削除
-rs.insert(l,r);                               // Count: [l,r)を追加し、新たに被覆した個数を返す O(log(K+1)+D)
-rs.insert(x);                                 // Count: 1点xを追加し、新たに被覆した個数（0か1）を返す O(log(K+1))
-rs.erase(l,r);                                // Count: [l,r)を削除し、実際に削除した個数を返す O(log(K+1)+D)
-rs.erase(x);                                  // Count: 1点xを削除し、実際に削除した個数（0か1）を返す O(log(K+1))
+rs.insert(l,r);                               // Count: [l,r)を追加し、新たに被覆した個数を返す O(log K+D)
+rs.insert(x);                                 // Count: 1点xを追加し、新たに被覆した個数（0か1）を返す O(log K)
+rs.erase(l,r);                                // Count: [l,r)を削除し、実際に削除した個数を返す O(log K+D)
+rs.erase(x);                                  // Count: 1点xを削除し、実際に削除した個数（0か1）を返す O(log K)
 
 // 被覆・重なりの判定
-rs.covered(l,r);                              // bool: [l,r)全体が被覆されていればtrue O(log(K+1))
-rs.covered(x);                                // bool: 1点xが被覆されていればtrue O(log(K+1))
-rs.contains(x);                               // bool: covered(x)と同じ O(log(K+1))
-rs.overlaps(l,r);                             // bool: [l,r)に被覆された整数が1つ以上あればtrue O(log(K+1))
+rs.covered(l,r);                              // bool: [l,r)全体が被覆されていればtrue O(log K)
+rs.covered(x);                                // bool: 1点xが被覆されていればtrue O(log K)
+rs.contains(x);                               // bool: covered(x)と同じ O(log K)
+rs.overlaps(l,r);                             // bool: [l,r)に被覆された整数が1つ以上あればtrue O(log K)
 
 // 保持区間の取得
-rs.covering_interval(x);                      // optional<ptt>: xを含む保持区間、なければnullopt O(log(K+1))
-rs.covering_interval(l,r);                    // optional<ptt>: [l,r)全体を含む保持区間、なければnullopt O(log(K+1))
-rs.covered_by(l,r);                           // ptt: 包含する保持区間、なければ{-TINF,-TINF} O(log(K+1))
+rs.covering_interval(x);                      // optional<ptt>: xを含む保持区間、なければnullopt O(log K)
+rs.covering_interval(l,r);                    // optional<ptt>: [l,r)全体を含む保持区間、なければnullopt O(log K)
+rs.covered_by(l,r);                           // ptt: 包含する保持区間、なければ{-TINF,-TINF} O(log K)
 
 // mex・個数・状態
-rs.mex(x);                                    // T: x以上の未被覆の整数のうち最小のものを返す O(log(K+1))
-rs.mex();                                     // T: 0以上の未被覆の整数のうち最小のものを返す O(log(K+1))
-rs.count_covered(l,r);                        // Count: [l,r)内で被覆された整数の個数を返す O(log(K+1)+D)、最悪O(K)
+rs.mex(x);                                    // T: x以上の未被覆の整数のうち最小のものを返す O(log K)
+rs.mex();                                     // T: 0以上の未被覆の整数のうち最小のものを返す O(log K)
+rs.count_covered(l,r);                        // Count: [l,r)内で被覆された整数の個数を返す O(log K+D)、最悪O(K)
 rs.cover_length();                            // Count: 集合全体で被覆された整数の個数を返す O(1)
 rs.size();                                    // size_t: 保持する区間数を返す（整数の個数ではない） O(1)
 rs.empty();                                   // bool: 空集合ならtrue O(1)

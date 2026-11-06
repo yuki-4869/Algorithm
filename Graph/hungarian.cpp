@@ -60,7 +60,7 @@ LLの値は通常のcoutへ直接渡せない。必要に応じて128bit整数�
 基本テンプレートのll,LL,vl,vvlを使用し、追加includeやACLへの依存はない。
 
 使える関数一覧
-HungarianResult hungarian(cost); // 最小費用と各行の割当列を返す O(1+N*N*M)時間・入力を除くO(N+M+1)領域
+HungarianResult hungarian(cost); // 最小費用と各行の割当列を返す O(N*N*M)時間・入力を除くO(N+M)領域
 LL result.cost;                 // 最小の費用合計
 vl result.column;               // result.column[i]が行iの割当先。長さN、列番号はすべて異なる
 

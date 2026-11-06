@@ -44,11 +44,11 @@ OR畳み込みは集合の重複を許す。互いに素な部分集合への分
 基本テンプレート以外のincludeは不要。クラスの構築は不要で、静的関数を呼び出す。
 
 使える関数一覧
-void BitmaskTransform::subset_zeta(a);      // a[S]=Σ_{T⊆S}元a[T] 時間O(1+N log(N+1))・追加領域O(1)
+void BitmaskTransform::subset_zeta(a);      // a[S]=Σ_{T⊆S}元a[T] 時間O(N log N)・追加領域O(1)
 void BitmaskTransform::subset_mobius(a);    // 部分集合ゼータの逆変換 同上
 void BitmaskTransform::superset_zeta(a);    // a[S]=Σ_{T⊇S}元a[T] 同上
 void BitmaskTransform::superset_mobius(a);  // 上位集合ゼータの逆変換 同上
-vector<T> BitmaskTransform::or_convolution(a,b);  // c[S]=Σ_{i|j=S}a[i]b[j] 時間O(1+N log(N+1))・領域O(N+1)
+vector<T> BitmaskTransform::or_convolution(a,b);  // c[S]=Σ_{i|j=S}a[i]b[j] 時間O(N log N)・領域O(N)
 vector<T> BitmaskTransform::and_convolution(a,b); // c[S]=Σ_{i&j=S}a[i]b[j] 同上
 
 基本の関数

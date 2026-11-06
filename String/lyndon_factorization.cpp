@@ -48,8 +48,8 @@ Lyndon語は空でなく、すべての空でない真の接尾辞より辞書�
 最小巡回シフトは文字列を返さず開始位置だけを返す。反転を同一視する処理は呼び出し側で行う。
 
 使える関数一覧
-vector<pll> lyndon_factorization(s); // 各Lyndon因子の[l,r)を左から返す O(N+1)時間・返り値O(N+1)領域・作業領域O(1)
-ll minimum_rotation(s);             // 辞書順最小の巡回シフトの最小開始位置 O(N+1)時間・追加領域O(1)
+vector<pll> lyndon_factorization(s); // 各Lyndon因子の[l,r)を左から返す O(N)時間・返り値O(N)領域・作業領域O(1)
+ll minimum_rotation(s);             // 辞書順最小の巡回シフトの最小開始位置 O(N)時間・追加領域O(1)
 
 基本の関数
 string s="banana";

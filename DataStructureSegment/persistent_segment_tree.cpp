@@ -135,7 +135,7 @@ public:
 0-indexed、区間は[l,r)。opとeはACLのsegtreeと同じ指定。opは結合則、e()は左右の単位元。
 auto old=seg;で現在の版をO(1)で保存。setはそのオブジェクトだけを更新し、oldは変えない。
 コピー・代入は共有、ムーブ後の元オブジェクトは空。全ての共有先の破棄時にノードを解放する。
-0<=N<=LLONG_MAX。Nだけの構築は全要素e()を仮想的に保持する。getはACLと異なりO(log(N+1))。
+0<=N<=LLONG_MAX。Nだけの構築は全要素e()を仮想的に保持する。getはACLと異なりO(log N)。
 NODES>=1はコピーで共有する全版の合計ノード上限。必要な分だけ確保し、個別には回収しない。
 vector構築はN>0なら2*N-1個、setは最大ceil(log2(N))+1個を追加する。
 添字・容量・g(e())の違反はNDEBUGでもメッセージなしで停止。gは副作用なしで単調であること。
@@ -144,14 +144,14 @@ Sのコピー、op/e/gはO(1)として計算量を表記。共有したSの内�
 使える関数一覧
 PersistentSegmentTree<S,op,e,NODES> seg;     // 長さ0で構築 O(1)
 PersistentSegmentTree<S,op,e,NODES> seg(N);  // 全要素e()で構築 O(1)
-PersistentSegmentTree<S,op,e,NODES> seg(v);  // vector<S>から構築 O(N+1)
+PersistentSegmentTree<S,op,e,NODES> seg(v);  // vector<S>から構築 O(N)
 auto old=seg;                               // コピーで版を保存 O(1)
-void seg.set(p,x);                          // a[p]=x、この版のみ更新 償却O(log(N+1))
-S seg.get(p);                              // a[p]を返す O(log(N+1))
-S seg.prod(l,r);                           // [l,r)を添字順に集約 O(log(N+1))
+void seg.set(p,x);                          // a[p]=x、この版のみ更新 償却O(log N)
+S seg.get(p);                              // a[p]を返す O(log N)
+S seg.prod(l,r);                           // [l,r)を添字順に集約 O(log N)
 S seg.all_prod();                          // 全区間の集約を返す O(1)
-ll seg.max_right(l,g);                     // g(prod(l,r))が真となる最大r O(log(N+1))
-ll seg.min_left(r,g);                      // g(prod(l,r))が真となる最小l O(log(N+1))
+ll seg.max_right(l,g);                     // g(prod(l,r))が真となる最大r O(log N)
+ll seg.min_left(r,g);                      // g(prod(l,r))が真となる最小l O(log N)
 ll seg.max_right<g>(l);                    // 関数ポインタ版、同じ動作・計算量
 ll seg.min_left<g>(r);                     // 関数ポインタ版、同じ動作・計算量
 ll seg.size();                            // 配列長を返す O(1)
