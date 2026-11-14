@@ -110,6 +110,46 @@ struct SegBracket:SegBase<SegBracket_impl::S,SegBracket_impl::op,SegBracket_impl
     bool valid(int l,int r){auto x=Base::prod(l,r);return x.sum==0&&x.mn>=0;}
 };
 
+namespace SegSecond_impl{
+    struct S{ll first=0,second=0;int count=0;};
+    template<bool Maximum>S op(S a,S b){
+        S result;
+        auto insert=[&](ll x){
+            if(!result.count){result.first=x;result.count=1;return;}
+            if(x==result.first||(result.count==2&&x==result.second))return;
+            if(Maximum?x>result.first:x<result.first){
+                result.second=result.first;result.first=x;result.count=2;
+            }else if(result.count==1||(Maximum?x>result.second:x<result.second)){
+                result.second=x;result.count=2;
+            }
+        };
+        if(a.count)insert(a.first);
+        if(a.count==2)insert(a.second);
+        if(b.count)insert(b.first);
+        if(b.count==2)insert(b.second);
+        return result;
+    }
+    inline S e(){return {};}
+    inline vector<S> cv(const vector<ll>&a){
+        vector<S> result;result.reserve(a.size());
+        for(ll x:a)result.push_back({x,0,1});
+        return result;
+    }
+    inline int checked_n(int n){if(n<0||n>(1<<29))std::abort();return n;}
+    template<bool Maximum>
+    struct Tree:SegBase<SegSecond_impl::S,op<Maximum>,e>{
+        using S=SegSecond_impl::S;
+        using Base=SegBase<S,op<Maximum>,e>;
+        using Base::Base;using Base::set;
+        Tree()=default;
+        explicit Tree(int n):Base(checked_n(n)){}
+        explicit Tree(const vector<ll>&a):Base(cv(a)){}
+        void set(int i,ll x){Base::set(i,{x,0,1});}
+    };
+}
+using SegMaxSecond=SegSecond_impl::Tree<true>;
+using SegMinSecond=SegSecond_impl::Tree<false>;
+
 /*
 細かい注意点
 0-indexed、全区間は[l,r)。opは結合則、eは単位元を満たす。
@@ -117,9 +157,26 @@ max_right/min_leftの述語は副作用なし・単調・f(e())==true。
 Arg型の同値は最左位置。MaxSubarrayは空部分列を認めない。
 SegMinMax::S={mx,mn}、Arg::S={val,id}、MaxSubarray::S={sum,pref,suff,best}。
 SegAffine::S={a,b}はf[r-1]∘...∘f[l]、SegBracket::S={sum,mn}。
+Second型のS={first,second,count}。重複を除き、Maxは降順、Minは昇順に最大2個保持。
+countは保持数0/1/2で、区間内の全種類数ではない。count>=1でfirst、count==2でsecondが有効。
+Second型は番兵なしでllの全範囲に対応。空区間・未設定の葉はcount=0、1種類だけならcount=1。
+Second型の(n)は未設定の葉をn個用意。全要素0にするならvector<ll>(n)を渡す。N<=2^29。
 整数演算がlong longに収まること。codecfではatcoder/segtreeを追加で読み込む。
 
 使える関数一覧
+SegMaxSecond seg(v);                        // vector<ll>から異なる上位2つを構築 O(N)
+SegMinSecond seg(v);                        // vector<ll>から異なる下位2つを構築 O(N)
+SegMaxSecond seg; / SegMinSecond seg;        // 空の木 O(1)
+SegMaxSecond seg(n); / SegMinSecond seg(n);  // n個の未設定の葉を構築 O(N)
+Type seg(vector<Type::S> v);                // Second型: count=0/1の葉配列から構築 O(N)
+seg.set(i,x);                              // Second型: llの値を1個保持する葉に置換 O(log N)
+seg.set(i,s);                              // Second型: Sの葉情報に置換、countは0/1 O(log N)
+seg.get(i);                                // Second型のS: 葉の情報 O(1)
+seg.prod(l,r);                             // Second型のS: {first,second,count} O(log N)
+seg.all_prod();                            // Second型のS: 全体の{first,second,count} O(1)
+seg.max_right(l,g); / seg.min_left(r,g);    // Second型のSを受け取る述語で境界探索 O(log N)
+seg.max_right<g>(l); / seg.min_left<g>(r);  // 同上、関数ポインタ版 O(log N)
+
 SegArgMax seg(v) 区間最大値とその最左位置を管理 O(N)
 pair相当 seg.prod(l,r) {最大値,その最左index}を返す O(log N)
 void seg.set(i,x) A[i]=xに更新 O(log N)
@@ -161,4 +218,10 @@ SegSum seg(vl{1,2,3});                        // 構築 O(N)
 seg.set(1,10);                                // 点代入 O(log N)
 auto sum = seg.prod(0,3);                     // 14 O(log N)
 auto value = seg.get(1);                      // 10 O(1)
+SegMaxSecond top(vl{5,5,3,1});
+auto high=top.prod(0,4);                      // {first=5,second=3,count=2}
+top.set(2,5);
+auto one=top.prod(0,3);                       // {first=5,count=1}。secondは使わない
+SegMinSecond bottom(vl{5,5,3,1});
+auto low=bottom.prod(0,4);                    // {first=1,second=3,count=2}
 */

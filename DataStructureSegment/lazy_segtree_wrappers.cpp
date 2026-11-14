@@ -492,12 +492,82 @@ struct LazyAPAddSum:LazySegBase<LazyAPAddSum_impl::S,LazyAPAddSum_impl::op,LazyA
     using B::set;
 };
 
+namespace lazy_second_detail{
+    struct S{long long first=0,second=0;int count=0;};
+    template<bool Maximum>S op(S a,S b){
+        S result;
+        auto insert=[&](long long x){
+            if(!result.count){result.first=x;result.count=1;return;}
+            if(x==result.first||(result.count==2&&x==result.second))return;
+            if(Maximum?x>result.first:x<result.first){
+                result.second=result.first;result.first=x;result.count=2;
+            }else if(result.count==1||(Maximum?x>result.second:x<result.second)){
+                result.second=x;result.count=2;
+            }
+        };
+        if(a.count)insert(a.first);
+        if(a.count==2)insert(a.second);
+        if(b.count)insert(b.first);
+        if(b.count==2)insert(b.second);
+        return result;
+    }
+    inline S e(){return {};}
+    inline std::vector<S> cv(const std::vector<long long>&a){
+        lazy_wrapper_detail::checked_size(a.size());
+        std::vector<S> result;result.reserve(a.size());
+        for(long long x:a)result.push_back({x,0,1});
+        return result;
+    }
+    inline S add(long long f,S x){
+        if(x.count)x.first+=f;
+        if(x.count==2)x.second+=f;
+        return x;
+    }
+    inline long long compose_add(long long f,long long g){return f+g;}
+    inline long long no_add(){return 0;}
+    inline S assign(LazyAssignF f,S x){return f.set&&x.count?S{f.x,0,1}:x;}
+    inline LazyAssignF compose_assign(LazyAssignF f,LazyAssignF g){return f.set?f:g;}
+    inline LazyAssignF no_assign(){return {};}
+    template<bool Maximum>
+    struct AddTree:LazySegBase<lazy_second_detail::S,op<Maximum>,e,long long,lazy_second_detail::add,compose_add,no_add>{
+        using S=lazy_second_detail::S;
+        using B=LazySegBase<S,op<Maximum>,e,long long,lazy_second_detail::add,compose_add,no_add>;
+        using B::B;using B::set;using B::apply;
+        AddTree()=default;
+        explicit AddTree(int n):B(cv(lazy_wrapper_detail::zeros(n))){}
+        explicit AddTree(const std::vector<long long>&a):B(cv(a)){}
+        void set(int i,long long x){B::set(i,{x,0,1});}
+        void add(int l,int r,long long x){B::apply(l,r,x);}
+    };
+    template<bool Maximum>
+    struct AssignTree:LazySegBase<lazy_second_detail::S,op<Maximum>,e,LazyAssignF,lazy_second_detail::assign,compose_assign,no_assign>{
+        using S=lazy_second_detail::S;
+        using B=LazySegBase<S,op<Maximum>,e,LazyAssignF,lazy_second_detail::assign,compose_assign,no_assign>;
+        using B::B;using B::set;using B::apply;
+        AssignTree()=default;
+        explicit AssignTree(int n):B(cv(lazy_wrapper_detail::zeros(n))){}
+        explicit AssignTree(const std::vector<long long>&a):B(cv(a)){}
+        void set(int i,long long x){B::set(i,{x,0,1});}
+        void apply(int i,long long x){B::apply(i,LazyAssignF{x,true});}
+        void apply(int l,int r,long long x){B::apply(l,r,LazyAssignF{x,true});}
+        void assign(int l,int r,long long x){apply(l,r,x);}
+    };
+}
+using LazyAddMaxSecond=lazy_second_detail::AddTree<true>;
+using LazyAddMinSecond=lazy_second_detail::AddTree<false>;
+using LazyAssignMaxSecond=lazy_second_detail::AssignTree<true>;
+using LazyAssignMinSecond=lazy_second_detail::AssignTree<false>;
+
 /*
 細かい注意点
 0-indexed、区間は[l,r)。0<=i<N、0<=l<=r<=N。N<=2^29。
 Sは集約型、Fは更新型。get/prodは整数値そのものではなくSを返す型もある。
 区間和・遅延タグ・中間演算はlong longに収まること。
-最小・最大・位置付き型の実要素は-LSEG_INFより大きくLSEG_INFより小さく保つ。
+Second以外の最小・最大・位置付き型の実要素は-LSEG_INFより大きくLSEG_INFより小さく保つ。
+Second型は重複を除く最大/最小の2個をS={first,second,count}で返す。番兵なしでlong longの全範囲に対応。
+Second型のcountは保持数0/1/2で、全種類数ではない。count>=1でfirst、count==2でsecondが有効。
+Second型は空ならcount=0、1種類ならcount=1。加算後の値・加算タグの合成もlong longに収める。
+Second型の生のSによる初期化・setは、各葉を{値,0,1}にする。代入では1種類に戻る。
 空区間のprodは単位元、applyは何もしない。minはLSEG_INF、maxは-LSEG_INF、和は0。
 Arg型の空区間のidはLSEG_INF、Sum/Stats/AP型のsizeは0。
 max_right/min_leftの述語は副作用なし・単調・g(e())==true。
@@ -511,6 +581,10 @@ Flip型は初期値とset値を0/非0から0/1へ正規化する。
 // 型の選択（Type seg(n) / Type seg(v)の構築はO(N)、seg(n)は0初期化）
 LazyAddMin seg(v);                             // 区間加算 + 最小値。S=long long、F=加算値
 LazyAddMax seg(v);                             // 区間加算 + 最大値。S=long long、F=加算値
+LazyAddMaxSecond seg(v);                       // 区間加算 + 重複を除いた上位2つ。S={first,second,count}、F=加算値
+LazyAddMinSecond seg(v);                       // 区間加算 + 重複を除いた下位2つ。S={first,second,count}、F=加算値
+LazyAssignMaxSecond seg(v);                    // 区間代入 + 重複を除いた上位2つ。S={first,second,count}、F=LazyAssignF
+LazyAssignMinSecond seg(v);                    // 区間代入 + 重複を除いた下位2つ。S={first,second,count}、F=LazyAssignF
 LazyAddSum seg(v);                             // 区間加算 + 和。S={val,size}、F=加算値
 LazyAssignMin seg(v);                          // 区間代入 + 最小値。S=long long、F=LazyAssignF
 LazyAssignMax seg(v);                          // 区間代入 + 最大値。S=long long、F=LazyAssignF
@@ -594,4 +668,12 @@ seg.apply(0,2,5);                             // [0,2)へ5加算 O(log N)
 auto result = seg.prod(0,3);                  // S={val=16,size=3} O(log N)
 seg.set(1,10);                                // 点代入 O(log N)
 auto value = seg.get(1);                      // S={val=10,size=1} O(log N)
+LazyAddMaxSecond top(vector<ll>{5,5,3,1});
+top.add(0,3,10);
+auto high=top.prod(0,4);                      // {first=15,second=13,count=2}
+LazyAssignMinSecond bottom(vector<ll>{5,5,3,1});
+bottom.assign(0,4,7);
+auto one=bottom.all_prod();                  // {first=7,count=1}。secondは使わない
+bottom.set(1,2);
+auto low=bottom.prod(0,4);                    // {first=2,second=7,count=2}
 */
