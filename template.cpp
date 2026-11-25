@@ -5,8 +5,8 @@ using namespace std; using namespace atcoder;
 using ll=long long; using LL=__int128; using mint=modint998244353;
 using ld = long double;
 using pll=pair<ll,ll>; using tu=tuple<ll,ll,ll>; using tu4 = tuple<ll,ll,ll,ll>;using vl=vector<ll>; using vb=vector<bool>; using vvb=vector<vb>; using vvl=vector<vl>; using vs=vector<string>; using vld=vector<long double>; using vc=vector<char>; using vmi=vector<mint>; using vp = vector<pll>; using vt = vector<tu>;using graph = vvl; using Graph = vector<vp>;
-template<class T=ll> auto vec2(ll n,ll m,T x=T()){return vector(n,vector<T>(m,x));} template<class T=ll> auto vec3(ll n,ll m,ll l,T x=T()){return vector(n,vector(m,vector<T>(l,x)));}
-template<class T=ll> auto vec4(ll a,ll b,ll c,ll d,T x=T()){return vector(a,vector(b,vector(c,vector<T>(d,x))));}
+template<class T=ll> auto vec2(ll n,ll m,std::type_identity_t<T> x=T()){return vector(n,vector<T>(m,x));} template<class T=ll> auto vec3(ll n,ll m,ll l,std::type_identity_t<T> x=T()){return vector(n,vector(m,vector<T>(l,x)));}
+template<class T=ll> auto vec4(ll a,ll b,ll c,ll d,std::type_identity_t<T> x=T()){return vector(a,vector(b,vector(c,vector<T>(d,x))));}
 template<class T> using rpq=priority_queue<T,vector<T>,greater<T>>; // 小さい順priority_queue
 using inverse_priority_queue=rpq<ll>;
 const ll Inf=2147483647LL, Inf9=1000000000LL, inf=9223372036854775807LL, inf18=1000000000000000000LL, mod=998244353LL;
@@ -48,6 +48,7 @@ template<class T> T vec_max(const vector<T>& v){do { if (!(!v.empty())) std::abo
 template<class T> T vec_sum(const vector<T>& v){T res=T(0); for(const auto& x:v) res+=x; return res;} // vectorの総和
 
 template<class T=ll> vector<T> cin_vl(ll n){vector<T> ret(n); rep(i,n) cin>>ret[i]; return ret;} // vector入力、型省略時ll
+vs cin_vs(ll n){return cin_vl<string>(n);}
 template<class T=ll> vector<vector<T>> cin_vvl(ll h,ll w){vector<vector<T>> ret(h,vector<T>(w)); rep(i,h) rep(j,w) cin>>ret[i][j]; return ret;} // h*w入力、型省略時ll
 template<class T=ll> pair<vector<T>,vector<T>> cin_xy(ll n){vector<T> x(n),y(n); rep(i,n) cin>>x[i]>>y[i]; return {x,y};} // x,y入力、型省略時ll
 template<class T=ll> tuple<vector<T>,vector<T>,vector<T>> cin_xyz(ll n){vector<T> x(n),y(n),z(n); rep(i,n) cin>>x[i]>>y[i]>>z[i]; return {x,y,z};} // x,y,z入力、型省略時ll
