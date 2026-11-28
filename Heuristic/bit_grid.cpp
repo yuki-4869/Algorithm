@@ -37,19 +37,40 @@ public:
     BitGrid flood(const BitGrid& allowed) const {
         if (height() != allowed.height() || width_ != allowed.width_) std::abort();
         BitGrid reached(height(), width_);
-        for (int r = 0; r < height(); ++r) reached.rows_[r] = rows_[r] & allowed.rows_[r];
-        auto frontier = reached.rows_;
-        std::vector<std::uint64_t> next(height());
-        while (true) {
-            bool expanded = false;
-            for (int r = 0; r < height(); ++r) {
-                next[r] = adjacent(frontier, r) & allowed.rows_[r] & ~reached.rows_[r];
-                reached.rows_[r] |= next[r];
-                expanded |= next[r] != 0;
+        std::deque<int> pending;
+        std::vector<char> in_queue(height());
+        for (int r = 0; r < height(); ++r) {
+            reached.rows_[r] = rows_[r] & allowed.rows_[r];
+            if (reached.rows_[r]) {
+                pending.push_back(r);
+                in_queue[r] = true;
             }
-            if (!expanded) return reached;
-            frontier.swap(next);
         }
+        auto extend = [&](int r, std::uint64_t incoming) {
+            const auto fresh = incoming & allowed.rows_[r] & ~reached.rows_[r];
+            if (fresh == 0) return;
+            reached.rows_[r] |= fresh;
+            if (!in_queue[r]) {
+                in_queue[r] = true;
+                pending.push_back(r);
+            }
+        };
+        while (!pending.empty()) {
+            const int r = pending.front();
+            pending.pop_front();
+            in_queue[r] = false;
+            auto bits = reached.rows_[r];
+            auto left = allowed.rows_[r], right = allowed.rows_[r];
+            for (int shift = 1; shift < width_ && bits != allowed.rows_[r]; shift <<= 1) {
+                bits |= ((bits << shift) & right) | ((bits >> shift) & left);
+                right &= right << shift;
+                left &= left >> shift;
+            }
+            reached.rows_[r] = bits;
+            if (r > 0) extend(r - 1, bits);
+            if (r + 1 < height()) extend(r + 1, bits);
+        }
+        return reached;
     }
 
 private:
@@ -73,7 +94,7 @@ private:
 - 各行は64 bit。0 <= W <= 64。座標は0-indexedで列0が最下位ビット。
 - 行・列の添字は盤内。set_rowは盤外のビットを切り捨てる。
 - floodではallowedと盤面サイズを揃える。通行不能な始点は除く。
-- floodは各距離で全行を走査する。縦長の通路ではGridBfsの方が適する。
+- floodは新しく到達した行だけ再処理し、連続する横区間はまとめて広げる。
 
 使える関数一覧
 ahc::BitGrid grid(H,W)              ビットが全て0の盤面を作る              O(H)
@@ -82,8 +103,8 @@ grid.row(r), grid.set_row(r,bits)   行のビットを取得・設定する     
 grid.test(r,c), grid.set(r,c,b=true)  1マスの取得・設定                    O(1)
 grid.count()                       1のマス数を返す                        O(H)
 grid.neighbors4()                  1のマスから1手で移動できる集合         O(H)
-grid.flood(allowed)                 allowed内で到達できる全マスの集合      O(1+H(D+1))
-Dは有効な始点集合からの最大最短距離。到達点が空ならD=0。領域はO(H)。
+grid.flood(allowed)                 allowed内で到達できる全マスの集合      O(1+H+R log(W+1))
+Rは処理された行の延べ数でR<=HW。領域はO(H)。
 
 基本の関数
 ahc::BitGrid start(2,4), allowed(2,4);
