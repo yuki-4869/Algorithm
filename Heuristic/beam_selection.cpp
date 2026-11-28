@@ -15,24 +15,35 @@ public:
 
     void reserve(std::size_t candidate_count) {
         candidates_.reserve(candidate_count);
-        if (deduplicate_) by_key_.reserve(candidate_count);
+        if (deduplicate_) ensure_capacity(candidate_count);
     }
 
     void push(std::size_t parent, Move move, Score score, std::uint64_t key = 0) {
         if (width_ == 0) return;
-        if (deduplicate_) {
-            auto [where, inserted] = by_key_.try_emplace(key, candidates_.size());
-            if (!inserted) {
-                auto& previous = candidates_[where->second];
-                if (previous.score < score) previous = {parent, std::move(move), score, key};
-                return;
-            }
+        if (!deduplicate_) {
+            candidates_.push_back({parent, std::move(move), score, key});
+            return;
         }
-        candidates_.push_back({parent, std::move(move), score, key});
+        ensure_capacity(candidates_.size() + 1);
+        auto& slot = find_slot(table_, key);
+        if (slot.layer == layer_) {
+            auto& previous = candidates_[slot.index];
+            if (previous.score < score) previous = {parent, std::move(move), score, key};
+        } else {
+            candidates_.push_back({parent, std::move(move), score, key});
+            slot = {key, candidates_.size() - 1, layer_};
+        }
     }
 
     std::vector<Candidate> take() {
-        std::vector<std::size_t> indices(candidates_.size());
+        std::vector<Candidate> result;
+        take_into(result);
+        return result;
+    }
+
+    void take_into(std::vector<Candidate>& result) {
+        auto& indices = indices_;
+        indices.resize(candidates_.size());
         std::iota(indices.begin(), indices.end(), std::size_t(0));
         auto better = [&](std::size_t lhs, std::size_t rhs) {
             if (candidates_[rhs].score < candidates_[lhs].score) return true;
@@ -44,23 +55,60 @@ public:
             indices.resize(width_);
         }
         std::sort(indices.begin(), indices.end(), better);
-        std::vector<Candidate> result;
+        result.clear();
         result.reserve(indices.size());
         for (auto index : indices) result.push_back(std::move(candidates_[index]));
         clear();
-        return result;
     }
 
     void clear() {
         candidates_.clear();
-        by_key_.clear();
+        if (++layer_ == 0) {
+            std::fill(table_.begin(), table_.end(), Slot{});
+            layer_ = 1;
+        }
     }
 
 private:
+    struct Slot {
+        std::uint64_t key = 0;
+        std::size_t index = 0;
+        std::uint64_t layer = 0;
+    };
+
+    Slot& find_slot(std::vector<Slot>& table, std::uint64_t key) const {
+        auto hash = key;
+        hash = (hash ^ (hash >> 30)) * 0xbf58476d1ce4e5b9ULL;
+        hash = (hash ^ (hash >> 27)) * 0x94d049bb133111ebULL;
+        hash ^= hash >> 31;
+        const std::size_t mask = table.size() - 1;
+        auto pos = std::size_t(hash) & mask;
+        while (table[pos].layer == layer_ && table[pos].key != key) pos = (pos + 1) & mask;
+        return table[pos];
+    }
+
+    void ensure_capacity(std::size_t needed) {
+        const auto existing = table_.size();
+        if (needed <= existing - existing / 4) return;
+        auto capacity = std::max(std::size_t(8), existing);
+        while (needed > capacity - capacity / 4) {
+            if (capacity > table_.max_size() / 2) std::abort();
+            capacity *= 2;
+        }
+        std::vector<Slot> table(capacity);
+        for (std::size_t i = 0; i < candidates_.size(); ++i) {
+            const auto key = candidates_[i].key;
+            find_slot(table, key) = {key, i, layer_};
+        }
+        table_.swap(table);
+    }
+
     std::size_t width_;
     bool deduplicate_;
+    std::uint64_t layer_ = 1;
     std::vector<Candidate> candidates_;
-    std::unordered_map<std::uint64_t, std::size_t> by_key_;
+    std::vector<std::size_t> indices_;
+    std::vector<Slot> table_;
 };
 
 }
@@ -73,22 +121,26 @@ private:
 - 同一キー内で同点なら先着。同スコアの異なるキーは、そのキーの最初の登録順。
 - 候補に保存するのはスコア・親・遷移情報。状態の生成と手順の復元は呼び出し側で行う。
 - 浮動小数のスコアにNaNを渡さない。Moveには小さい値型を推奨する。
+- 同じbeamと出力vectorを使い回すと、take_intoで層ごとの確保を減らせる。
 
 使える関数一覧
 ahc::BeamSelection<Move,Score> beam(width,deduplicate=false)  空の候補集合を作る          O(1)
-beam.reserve(candidate_count)  候補領域を予約する                 期待O(U)
+beam.reserve(candidate_count)  候補領域を予約する                 期待O(1+candidate_count+U)
 beam.push(parent,move,score,key=0)  1候補を追加する                償却期待O(1)
-beam.take()                    上位候補を降順で返し、層を空にする  期待O(U+K log K)
-beam.clear()                   候補を空にする                     O(U)
+beam.take()                    上位候補を降順で返し、層を空にする  期待O(1+U+K log K)
+beam.take_into(out)            上位候補でoutを上書きして層を空にする  期待O(1+U+K log K+旧out.size())
+beam.clear()                   候補を空にする                     O(1+U)
 Candidate::parent, move, score, key  親の添字・遷移・評価・同一視キー
-Uは保持候補数、K=min(width,U)。関数の計算量はMoveとScoreの操作をO(1)とした場合。
+Uは保持候補数、K=min(width,U)。clearは層番号が64 bitで一周した時だけ表も初期化する。関数の計算量はMoveとScoreの操作をO(1)とした場合。
 
 基本の関数
 ahc::BeamSelection<char> beam(2,true);
 beam.push(0,'L',10,101);
 beam.push(0,'R',20,102);
 beam.push(1,'U',21,102);
-for(const auto& candidate : beam.take()){
+vector<ahc::BeamSelection<char>::Candidate> next;
+beam.take_into(next);
+for(const auto& candidate : next){
     // prev[candidate.parent] に candidate.move を適用して次の状態を作る。
 }
 */

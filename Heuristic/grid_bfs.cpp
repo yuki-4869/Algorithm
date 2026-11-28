@@ -21,9 +21,9 @@ public:
                 if (!inside(to)) continue;
                 const int next = to.first * width_ + to.second;
                 if (dist_[next] != -1 || !std::invoke(can_step, from, to)) continue;
+                queue_.push_back(next);
                 dist_[next] = dist_[index] + 1;
                 parent_dir_[next] = std::uint8_t(direction);
-                queue_.push_back(next);
             }
         }
     }
@@ -59,18 +59,20 @@ public:
     void run_prepared(std::span<const Cell> starts) {
         if (!prepared_) std::abort();
         seed(starts, [&](int index) { return prepared_moves_[index] != 0; });
-        const int offset[4]{-width_, 1, width_, -1};
         for (std::size_t head = 0; head < queue_.size(); ++head) {
             const int index = queue_[head];
             const int next_distance = dist_[index] + 1;
-            for (unsigned mask = prepared_moves_[index] & 15u; mask != 0; mask &= mask - 1) {
-                const int direction = std::countr_zero(mask);
-                const int next = index + offset[direction];
-                if (dist_[next] != -1) continue;
-                dist_[next] = next_distance;
-                parent_dir_[next] = std::uint8_t(direction);
+            const unsigned mask = prepared_moves_[index];
+            const auto visit = [&](int next, std::uint8_t direction) {
+                if (dist_[next] != -1) return;
                 queue_.push_back(next);
-            }
+                dist_[next] = next_distance;
+                parent_dir_[next] = direction;
+            };
+            if (mask & 1u) visit(index - width_, 0);
+            if (mask & 2u) visit(index + 1, 1);
+            if (mask & 4u) visit(index + width_, 2);
+            if (mask & 8u) visit(index - 1, 3);
         }
     }
 
@@ -84,28 +86,30 @@ public:
     std::optional<std::string> path(Cell target) const {
         int index = id(target);
         if (dist_[index] < 0) return std::nullopt;
-        std::string moves;
-        moves.reserve(dist_[index]);
-        while (dist_[index] > 0) {
+        std::string moves(dist_[index], ' ');
+        for (auto it = moves.rbegin(); it != moves.rend(); ++it) {
             const int direction = parent_dir_[index];
-            moves.push_back("URDL"[direction]);
+            *it = "URDL"[direction];
             index -= dr_[direction] * width_ + dc_[direction];
         }
-        std::reverse(moves.begin(), moves.end());
         return moves;
     }
 
 private:
     template<class IsAllowed>
     void seed(std::span<const Cell> starts, IsAllowed allowed) {
-        std::fill(dist_.begin(), dist_.end(), -1);
+        if (queue_.size() < dist_.size() / 8) {
+            for (int index : queue_) dist_[index] = -1;
+        } else {
+            std::fill(dist_.begin(), dist_.end(), -1);
+        }
         queue_.clear();
         for (Cell start : starts) {
             const int index = id(start);
             if (!allowed(index)) std::abort();
             if (dist_[index] == 0) continue;
-            dist_[index] = 0;
             queue_.push_back(index);
+            dist_[index] = 0;
         }
     }
 
@@ -151,6 +155,7 @@ bfs.inside(cell)                       盤内ならtrue                    O(1)
 bfs.dist(target)                       最短距離または-1               O(1)
 bfs.path(target)                       最短手順またはnullopt          O(1+最短距離)
 Sは始点数。通行判定はO(1)とする。探索領域はO(HW)。
+探索履歴の初期化は前回の到達点が少なければ、その点だけに行う。
 
 基本の関数
 vector<string> board{"...",".#.","..."};

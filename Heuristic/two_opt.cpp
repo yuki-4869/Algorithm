@@ -61,10 +61,15 @@ bool two_opt_first_improvement(
     std::remove_cvref_t<std::invoke_result_t<Distance&, int, int>> epsilon = 0
 ) {
     if (!(epsilon >= 0)) std::abort();
+    using Cost = std::remove_cvref_t<std::invoke_result_t<Distance&, int, int>>;
     for (std::size_t left = 1; left + 1 < tour.size(); ++left) {
+        const int before = tour[left - 1], first = tour[left];
+        const Cost left_edge = std::invoke(distance, before, first);
         for (std::size_t right = left + 2; right <= tour.size(); ++right) {
-            const auto delta = two_opt_delta(tour, left, right, distance);
-            if (delta < -epsilon) {
+            const int last = tour[right - 1], after = tour[right == tour.size() ? 0 : right];
+            const Cost removed = left_edge + std::invoke(distance, last, after);
+            const Cost added = std::invoke(distance, before, last) + std::invoke(distance, first, after);
+            if (Cost(added - removed) < -epsilon) {
                 std::reverse(tour.begin() + left, tour.begin() + right);
                 return true;
             }
@@ -81,7 +86,7 @@ bool two_opt_first_improvement(
 - 巡回路は頂点列。末尾に始点を重複させず、閉路の最後の辺は自動で数える。
 - 2-optは対称コストのみ。反転位置は0-indexed半開区間 [left,right)。
 - コスト・差分・中間和には十分広い符号付き型を使う。浮動小数は有限値を使う。
-- first_improvementは先頭を固定し、改善を1つ反映する。epsilonは非負。
+- first_improvementは先頭を固定し、改善を1つ反映する。epsilonは非負。distance(u,v)は同じ頂点対で一定の値を返す。
 - 最近傍法は同距離なら小さい頂点番号を選ぶ。n=0ならstart=0。
 
 使える関数一覧

@@ -27,13 +27,19 @@ private:
 class AnnealingLossTable {
 public:
     explicit AnnealingLossTable(std::size_t max_loss, double temperature = 0)
-        : probabilities_(max_loss) { set_temperature(temperature); }
+        : probabilities_(max_loss), double_thresholds_(max_loss) { set_temperature(temperature); }
 
     void set_temperature(double temperature) {
         if (!std::isfinite(temperature) || temperature < 0) std::abort();
         temperature_ = temperature;
         for (std::size_t i = 0; i < probabilities_.size(); ++i) {
-            probabilities_[i] = compute(i + 1);
+            const auto exact = compute(i + 1);
+            auto round_up = static_cast<double>(exact);
+            if (static_cast<long double>(round_up) < exact) {
+                round_up = std::nextafter(round_up, 1.0);
+            }
+            probabilities_[i] = exact;
+            double_thresholds_[i] = round_up;
         }
     }
 
@@ -47,12 +53,26 @@ public:
     }
 
 private:
+    template<class State, class Score> friend class Annealing;
+
+    template<class Sample>
+    bool accepts_loss(std::uint64_t loss, Sample& sample) const {
+        using Value = std::remove_cvref_t<std::invoke_result_t<Sample&>>;
+        if constexpr (std::is_same_v<Value,double> || std::is_same_v<Value,float>) {
+            if (loss <= max_loss()) {
+                return std::invoke(sample) < double_thresholds_[loss - 1];
+            }
+        }
+        return std::invoke(sample) < probability(loss);
+    }
+
     long double compute(std::uint64_t loss) const {
         if (temperature_ == 0) return 0;
         return std::exp(-static_cast<long double>(loss) / temperature_);
     }
 
     std::vector<long double> probabilities_;
+    std::vector<double> double_thresholds_;
     double temperature_ = 0;
 };
 
@@ -86,7 +106,7 @@ public:
         if (delta < Score(0)) {
             if (table.temperature() == 0) return false;
             const auto loss = std::uint64_t(0) - std::uint64_t(delta);
-            if (!(std::invoke(sample) < table.probability(loss))) return false;
+            if (!table.accepts_loss(loss, sample)) return false;
         }
         apply_move(delta, apply);
         return true;
@@ -119,6 +139,7 @@ private:
 - Stateは独立したコピーを作れる型が必要。最良更新時にStateをコピーする。
 - 符号付き64 bit以下の整数スコアはAnnealingLossTableで悪化量1..max_lossの受理確率を使い回せる。
 - 表の温度はバッチごとに更新。表の範囲外は従来通りexpを計算する。
+- sampleの戻り値がdouble/floatなら、丸め方向をそろえた比較値を使い受理結果を保つ。
 
 使える関数一覧
 ahc::AnnealingSchedule schedule(start,finish)  温度スケジュールを構築               O(1)
