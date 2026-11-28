@@ -37,7 +37,8 @@ public:
     BitGrid flood(const BitGrid& allowed) const {
         if (height() != allowed.height() || width_ != allowed.width_) std::abort();
         BitGrid reached(height(), width_);
-        std::deque<int> pending;
+        if (width_ == 0) return reached;
+        std::vector<int> pending;
         std::vector<char> in_queue(height());
         for (int r = 0; r < height(); ++r) {
             reached.rows_[r] = rows_[r] & allowed.rows_[r];
@@ -56,15 +57,21 @@ public:
             }
         };
         while (!pending.empty()) {
-            const int r = pending.front();
-            pending.pop_front();
+            const int r = pending.back();
+            pending.pop_back();
             in_queue[r] = false;
             auto bits = reached.rows_[r];
-            auto left = allowed.rows_[r], right = allowed.rows_[r];
-            for (int shift = 1; shift < width_ && bits != allowed.rows_[r]; shift <<= 1) {
-                bits |= ((bits << shift) & right) | ((bits >> shift) & left);
-                right &= right << shift;
-                left &= left >> shift;
+            const auto open = allowed.rows_[r];
+            const auto first = open & -open;
+            if ((open & (open + first)) == 0) {
+                bits = open;
+            } else {
+                auto left = open, right = open;
+                for (int shift = 1; shift < width_ && bits != open; shift <<= 1) {
+                    bits |= ((bits << shift) & right) | ((bits >> shift) & left);
+                    right &= right << shift;
+                    left &= left >> shift;
+                }
             }
             reached.rows_[r] = bits;
             if (r > 0) extend(r - 1, bits);
@@ -94,7 +101,7 @@ private:
 - 各行は64 bit。0 <= W <= 64。座標は0-indexedで列0が最下位ビット。
 - 行・列の添字は盤内。set_rowは盤外のビットを切り捨てる。
 - floodではallowedと盤面サイズを揃える。通行不能な始点は除く。
-- floodは新しく到達した行だけ再処理し、連続する横区間はまとめて広げる。
+- floodは新しく到達した行だけ再処理し、連続する横区間はまとめて広げる。行が単一の連続区間なら一括で到達済みにする。
 
 使える関数一覧
 ahc::BitGrid grid(H,W)              ビットが全て0の盤面を作る              O(H)
